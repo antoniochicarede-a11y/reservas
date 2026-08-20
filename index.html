@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reservas · Eventos deportivos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <span class="brand__mark">●</span>
+        <span class="brand__name">RESERVAS<span class="brand__name--accent">DEPORTIVAS</span></span>
+      </div>
+      <nav class="nav">
+        <a href="#eventos" class="nav__link">Eventos</a>
+        <a href="#como-funciona" class="nav__link">Cómo funciona</a>
+        <a href="#mis-reservas" class="nav__link">Mis reservas</a>
+      </nav>
+      <button class="btn btn--ghost" id="btnLogin">Acceder</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero__inner">
+      <p class="hero__eyebrow">Temporada 2026 · Plazas limitadas</p>
+      <h1 class="hero__title">Reserva tu pista.<br>Juega cuando quieras.</h1>
+      <p class="hero__subtitle">Encuentra pistas y eventos deportivos cerca de ti, comprueba las plazas libres en tiempo real y confirma tu reserva en dos clics.</p>
+      <div class="hero__actions">
+        <a href="#eventos" class="btn btn--primary">Ver eventos disponibles</a>
+        <a href="#como-funciona" class="btn btn--outline">Cómo funciona</a>
+      </div>
+      <div class="hero__stats">
+        <div class="stat"><span class="stat__num" id="statEventos">0</span><span class="stat__label">eventos activos</span></div>
+        <div class="stat"><span class="stat__num" id="statPlazas">0</span><span class="stat__label">plazas libres</span></div>
+        <div class="stat"><span class="stat__num" id="statReservas">0</span><span class="stat__label">reservas hoy</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="eventos">
+    <div class="section__head">
+      <h2 class="section__title">Próximos eventos</h2>
+      <div class="filters" id="filtros"></div>
+    </div>
+    <div class="board" id="board"><!-- tarjetas generadas por JS --></div>
+  </section>
+
+  <section class="section section--dark" id="como-funciona">
+    <h2 class="section__title section__title--light">Cómo funciona</h2>
+    <ol class="steps">
+      <li class="steps__item">
+        <span class="steps__num">01</span>
+        <h3>Elige tu evento</h3>
+        <p>Filtra por deporte y revisa el marcador de plazas disponibles de cada pista.</p>
+      </li>
+      <li class="steps__item">
+        <span class="steps__num">02</span>
+        <h3>Reserva tu plaza</h3>
+        <p>Rellena tus datos en el formulario emergente. Sin registros complicados.</p>
+      </li>
+      <li class="steps__item">
+        <span class="steps__num">03</span>
+        <h3>Recibe la confirmación</h3>
+        <p>Tu plaza queda bloqueada al instante y aparece en "Mis reservas".</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="section" id="mis-reservas">
+    <h2 class="section__title">Mis reservas</h2>
+    <div class="reservas-list" id="reservasList">
+      <p class="empty">Todavía no has reservado ninguna plaza. Elige un evento arriba para empezar.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>Proyecto de prácticas · Prototipo del Sprint 1 · Reservas eventos deportivos</p>
+  </footer>
+
+  <!-- Modal de reserva -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__box">
+      <button class="modal__close" id="modalClose" aria-label="Cerrar">×</button>
+      <p class="modal__eyebrow" id="modalDeporte">Deporte</p>
+      <h3 class="modal__title" id="modalTitulo">Nombre del evento</h3>
+      <p class="modal__meta" id="modalMeta">Fecha · Lugar</p>
+
+      <form id="formReserva" class="form">
+        <label class="field">
+          <span>Nombre y apellidos</span>
+          <input type="text" name="nombre" required placeholder="Ej. Laura Gómez">
+        </label>
+        <label class="field">
+          <span>Correo electrónico</span>
+          <input type="email" name="email" required placeholder="tucorreo@ejemplo.com">
+        </label>
+        <label class="field">
+          <span>Número de plazas</span>
+          <input type="number" name="plazas" min="1" max="4" value="1" required>
+        </label>
+        <p class="form__error" id="formError"></p>
+        <button type="submit" class="btn btn--primary btn--block">Confirmar reserva</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

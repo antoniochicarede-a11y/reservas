@@ -295,3 +295,18 @@ a {
   padding: var(--espacio-md); /* Box Model */
   border-radius: var(--radio-borde);
 }
+/* Listado de eventos con CSS Grid (Asignado a Deportes) */
+.deportes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--espacio-md);
+  padding: var(--espacio-lg) 0;
+}
+
+/* Panel de administración en Grid (Boceto) */
+.admin-panel {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  grid-template-rows: 70px 1fr;
+  min-height: 100vh;
+}

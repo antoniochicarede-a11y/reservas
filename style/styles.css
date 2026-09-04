@@ -1,0 +1,153 @@
+:root {
+  /* Color identificativo de cada web */
+  --color-deportivo: #1e88e5;
+  --color-castillo: #8e44ad;
+  --color-salas: #16a085;
+
+  /* Paleta común */
+  --color-texto: #222222;
+  --color-texto-claro: #ffffff;
+  --color-fondo: #f7f7f7;
+  --color-fondo-tarjeta: #ffffff;
+  --color-borde: #e0e0e0;
+  --color-sombra: rgba(0, 0, 0, 0.12);
+
+  /* Tipografía común */
+  --fuente-titulo: 'Georgia', 'Times New Roman', serif;
+  --fuente-texto: 'Segoe UI', Arial, sans-serif;
+
+  /* Espaciados y bordes reutilizables */
+  --espaciado-sm: 0.5rem;
+  --espaciado-md: 1rem;
+  --espaciado-lg: 2rem;
+  --radio-borde: 10px;
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* El Box Model se calcula incluyendo padding y borde */
+}
+
+body {
+  font-family: var(--fuente-texto);
+  color: var(--color-texto);
+  background-color: var(--color-fondo);
+  line-height: 1.6;
+}
+
+header,
+footer {
+  background-color: var(--color-deportivo);
+  color: var(--color-texto-claro);
+}
+
+header {
+  padding: var(--espaciado-lg) var(--espaciado-md);
+  text-align: center;
+}
+
+header h1 {
+  font-family: var(--fuente-titulo);
+  font-size: 2rem;
+  letter-spacing: 0.5px;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--espaciado-lg) var(--espaciado-md);
+}
+
+footer {
+  text-align: center;
+  padding: var(--espaciado-md);
+  margin-top: var(--espaciado-lg);
+  font-size: 0.9rem;
+}
+
+#pagina-castillo header,
+#pagina-castillo footer {
+  background-color: var(--color-castillo);
+}
+
+#pagina-salas header,
+#pagina-salas footer {
+  background-color: var(--color-salas);
+}
+
+
+.seccion-presentacion {
+  margin-bottom: var(--espaciado-lg);
+  padding-bottom: var(--espaciado-md);
+  border-bottom: 2px solid var(--color-borde);
+}
+
+.seccion-presentacion h2 {
+  font-family: var(--fuente-titulo);
+  font-size: 1.6rem;
+  margin-bottom: var(--espaciado-sm);
+  color: var(--color-deportivo);
+}
+
+.seccion-presentacion h3 {
+  font-weight: normal;
+  color: #555;
+  margin-bottom: var(--espaciado-md);
+}
+
+
+.tarjeta {
+  background-color: var(--color-fondo-tarjeta);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  padding: var(--espaciado-md);
+  margin: var(--espaciado-md) 0;
+  box-shadow: 0 2px 6px var(--color-sombra);
+}
+
+.tarjeta h3 {
+  font-family: var(--fuente-titulo);
+  margin-bottom: var(--espaciado-sm);
+}
+
+/* Variante de color de tarjeta según la web (opcional) */
+#pagina-deportivo .tarjeta {
+  border-left: 4px solid var(--color-deportivo);
+}
+
+#pagina-castillo .tarjeta {
+  border-left: 4px solid var(--color-castillo);
+}
+
+#pagina-salas .tarjeta {
+  border-left: 4px solid var(--color-salas);
+}
+
+
+.boton {
+  display: inline-block;
+  font-family: var(--fuente-texto);
+  font-size: 1rem;
+  color: var(--color-texto-claro);
+  background-color: var(--color-deportivo);
+  border: none;
+  border-radius: var(--radio-borde);
+  padding: var(--espaciado-sm) var(--espaciado-lg);
+  margin-top: var(--espaciado-sm);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.boton:hover {
+  opacity: 0.85;
+}
+
+#pagina-castillo .boton {
+  background-color: var(--color-castillo);
+}
+
+#pagina-salas .boton {
+  background-color: var(--color-salas);
+}

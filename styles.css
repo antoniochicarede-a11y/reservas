@@ -176,4 +176,44 @@ a{ color:inherit; }
 
 @media (max-width: 720px){
   .nav{ display:none; }
+}/* Cabecera principal con Flexbox */
+.topbar__inner {
+  display: flex;
+  justify-content: space-between; /* Distribuye espacio entre logo, nav y botón */
+  align-items: center;
+  padding: 1rem 2rem;
+  width: 100%;
+}
+
+/* Menú de enlaces horizontal */
+.nav {
+  display: flex;
+  gap: 2rem;                       /* Espacio entre cada texto del menú */
+  list-style: none;                /* Elimina viñetas de lista */
+  margin: 0;
+  padding: 0;
+}
+
+.nav__link {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav__link:hover {
+  color: var(--color-deportivo, #f59e0b);
+}/* Quitar puntos negros/blancos de todas las listas de navegación */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Alineación horizontal para secciones o etiquetas */
+.deportes-lista {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
 }

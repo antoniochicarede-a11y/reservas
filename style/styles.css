@@ -1,0 +1,312 @@
+:root {
+  /* Color identificativo de cada una de las tres webs */
+  --color-deportivo: #1e88e5;
+  --color-castillo: #8e44ad;
+  --color-salas: #16a085;
+
+  /* Paleta común al resto del sitio */
+  --color-fondo: #f4f6f5;
+  --color-superficie: #ffffff;
+  --color-texto: #1c2530;
+  --color-texto-claro: #ffffff;
+  --color-borde: #dfe3e6;
+  --color-sombra: rgba(0, 0, 0, 0.12);
+
+  --fuente-titulo: 'Bebas Neue', 'Georgia', serif;
+  --fuente-texto: 'Inter', 'Segoe UI', Arial, sans-serif;
+
+  --espacio-sm: 0.5rem;
+  --espacio-md: 1rem;
+  --espacio-lg: 2rem;
+  --radio-borde: 10px;
+}
+
+
+* {
+  box-sizing: border-box; 
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--fuente-texto);
+  color: var(--color-texto);
+  background-color: var(--color-fondo);
+  line-height: 1.6;
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.topbar {
+  background-color: var(--color-deportivo);
+}
+
+.topbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--espacio-md) var(--espacio-lg); 
+}
+
+.brand {
+  font-family: var(--fuente-titulo);
+  font-size: 1.4rem;
+  color: var(--color-texto-claro);
+}
+
+.nav {
+  display: flex;
+  gap: var(--espacio-lg);
+}
+
+.nav__link {
+  color: var(--color-texto-claro);
+}
+
+.hero {
+  background-color: var(--color-deportivo);
+  color: var(--color-texto-claro);
+}
+
+.hero__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--espacio-lg); /* Box Model */
+}
+
+.hero__title {
+  font-family: var(--fuente-titulo);
+  font-weight: 400;
+  font-size: 2.6rem;
+  margin-bottom: var(--espacio-md);
+}
+
+.hero__subtitle {
+  max-width: 60ch;
+  margin-bottom: var(--espacio-lg);
+}
+
+.hero__actions {
+  display: flex;
+  gap: var(--espacio-md);
+  flex-wrap: wrap;
+}
+
+.hero__stats {
+  display: flex;
+  gap: var(--espacio-lg);
+  margin-top: var(--espacio-lg);
+}
+
+.stat__num {
+  font-family: var(--fuente-titulo);
+  font-size: 2rem;
+}
+
+.section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--espacio-lg); /* Box Model */
+}
+
+.section--dark {
+  max-width: none;
+  background-color: var(--color-texto);
+  color: var(--color-texto-claro);
+}
+
+.section__title {
+  font-family: var(--fuente-titulo);
+  font-weight: 400;
+  font-size: 1.8rem;
+  margin-bottom: var(--espacio-md);
+}
+
+.section__title--light {
+  color: var(--color-texto-claro);
+}
+
+.section__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--espacio-md);
+}
+
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--espacio-md);
+}
+
+.card {
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);  
+  border-radius: var(--radio-borde);
+  padding: var(--espacio-md);             
+  margin: 0;                             
+  box-shadow: 0 2px 6px var(--color-sombra);
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--espacio-lg);
+}
+
+.steps__item {
+  border-top: 2px solid var(--color-deportivo);
+  padding-top: var(--espacio-md); /* Box Model */
+}
+
+.steps__num {
+  font-family: var(--fuente-titulo);
+  font-size: 1.6rem;
+  color: var(--color-deportivo);
+}
+
+.reservas-list .empty {
+  border: 1px dashed var(--color-borde);
+  border-radius: var(--radio-borde);
+  padding: var(--espacio-lg);
+  text-align: center;
+}
+
+.footer {
+  background-color: var(--color-deportivo);
+  color: var(--color-texto-claro);
+  text-align: center;
+  padding: var(--espacio-md);
+}
+
+.btn {
+  display: inline-block;
+  font-family: var(--fuente-texto);
+  font-size: 0.95rem;
+  border: 2px solid transparent;  
+  border-radius: var(--radio-borde);
+  padding: 0.7rem 1.5rem;          
+  margin: 0;                       
+  cursor: pointer;
+}
+
+.btn--primary {
+  background-color: var(--color-texto-claro);
+  color: var(--color-deportivo);
+}
+
+.btn--outline {
+  background-color: transparent;
+  border-color: var(--color-texto-claro);
+  color: var(--color-texto-claro);
+}
+
+.btn--ghost {
+  background-color: transparent;
+  border-color: var(--color-texto-claro);
+  color: var(--color-texto-claro);
+}
+
+.btn--block {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.field input {
+  border: 1px solid var(--color-borde);
+  border-radius: 6px;
+  padding: 0.6rem;                     
+  margin: 0;
+  font-family: var(--fuente-texto);
+}
+
+.modal__box {
+  background-color: var(--color-superficie);
+  border-radius: var(--radio-borde);
+  padding: var(--espacio-lg); /* Box Model */
+  margin: 0 auto;
+  max-width: 420px;
+  box-shadow: 0 8px 24px var(--color-sombra);
+}
+
+
+#btnLogin {
+  border-color: var(--color-texto-claro);
+}
+
+#board {
+  margin-top: var(--espacio-md);
+}
+
+#modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espacio-md); /* Box Model */
+}
+
+#modal[aria-hidden="true"] {
+  display: none;
+}
+
+#modalClose {
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+#toast {
+  position: fixed;
+  bottom: var(--espacio-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-texto);
+  color: var(--color-texto-claro);
+  padding: var(--espacio-md); /* Box Model */
+  border-radius: var(--radio-borde);
+}
+/* Listado de eventos con CSS Grid (Asignado a Deportes) */
+.deportes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--espacio-md);
+  padding: var(--espacio-lg) 0;
+}
+
+/* Panel de administración en Grid (Boceto) */
+.admin-panel {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  grid-template-rows: 70px 1fr;
+  min-height: 100vh;
+}

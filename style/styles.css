@@ -485,6 +485,232 @@ a{ color:inherit; }
 }
 .toast.is-visible{ transform: translateX(-50%) translateY(0); }
 
-@media (max-width: 720px){
-  .nav{ display:none; }
+/* =====================================================
+   RESPONSIVE DESIGN
+   3 puntos de corte: móvil, tablet y escritorio
+   ===================================================== */
+
+
+/* =========================
+   MÓVIL
+   Hasta 720px
+   ========================= */
+
+@media (max-width: 720px) {
+
+  /* Navegación */
+  .topbar__inner {
+    padding: .8rem 1rem;
+    gap: 1rem;
+  }
+
+  .brand {
+    font-size: 1.1rem;
+  }
+
+  .nav {
+    display: none;
+  }
+
+
+  /* Hero */
+  .hero {
+    padding: 3rem 1rem 2.5rem;
+  }
+
+  .hero__title {
+    font-size: 2.4rem;
+  }
+
+  .hero__subtitle {
+    font-size: .95rem;
+  }
+
+  .hero__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero__actions .btn {
+    width: 100%;
+  }
+
+
+  /* Estadísticas */
+  .hero__stats {
+    gap: 1.2rem;
+  }
+
+
+  /* Secciones */
+  .section {
+    padding: 2.5rem 1rem;
+  }
+
+  .section__title {
+    font-size: 1.8rem;
+  }
+
+
+  /* Filtros */
+  .filters {
+    width: 100%;
+  }
+
+  .filter {
+    flex: 1;
+    text-align: center;
+  }
+
+
+  /* Tarjetas deportivas */
+  .board {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .card {
+    width: 100%;
+  }
+
+
+  /* Pasos */
+  .steps {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+
+
+  /* Reservas */
+  .reserva-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .badge {
+    align-self: flex-start;
+  }
+
+
+  /* Modal */
+  .modal {
+    padding: 1rem;
+  }
+
+  .modal__box {
+    max-width: 100%;
+    padding: 1.4rem;
+  }
+
+
+  /* Botones */
+  .btn {
+    width: 100%;
+  }
+
+
+  /* Formulario */
+  .field input {
+    width: 100%;
+  }
+
+
+  /* Toast */
+  .toast {
+    width: calc(100% - 2rem);
+    text-align: center;
+  }
+}
+
+
+/* =========================
+   TABLET
+   721px - 1024px
+   ========================= */
+
+@media (min-width: 721px) and (max-width: 1024px) {
+
+  /* Navegación */
+  .topbar__inner {
+    padding: .9rem 1.2rem;
+  }
+
+  .nav {
+    gap: 1rem;
+  }
+
+  .nav__link {
+    font-size: .85rem;
+  }
+
+
+  /* Hero */
+  .hero {
+    padding: 3.5rem 1.5rem;
+  }
+
+  .hero__title {
+    font-size: 3.2rem;
+  }
+
+
+  /* Secciones */
+  .section {
+    padding: 3rem 1.5rem;
+  }
+
+
+  /* Tarjetas */
+  .board {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
+  }
+
+  .deportes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+
+  /* Pasos */
+  .steps {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+
+  /* Modal */
+  .modal__box {
+    max-width: 450px;
+  }
+}
+
+
+/* =========================
+   ESCRITORIO
+   Desde 1025px
+   ========================= */
+
+@media (min-width: 1025px) {
+
+  .topbar__inner {
+    max-width: 1180px;
+  }
+
+  .nav {
+    display: flex;
+  }
+
+  .board {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .deportes-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .steps {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
 }

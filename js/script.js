@@ -6,12 +6,10 @@ const eventos = [
   { id: 4, deporte: "Tenis",    titulo: "Pista 2 · Reserva individual",  fecha: "Dom 23 ago · 09:00", lugar: "Club Norte", plazasTotal: 2, plazasOcupadas: 0 },
   { id: 5, deporte: "Pádel",    titulo: "Pista 4 · Dobles nocturno",     fecha: "Lun 24 ago · 21:00", lugar: "Club Este", plazasTotal: 4, plazasOcupadas: 2 },
   { id: 6, deporte: "Running", titulo: "Salida grupal 10K",              fecha: "Mar 25 ago · 07:30", lugar: "Parque del Río", plazasTotal: 20, plazasOcupadas: 6 },
-];
 
-const misReservas = [];
-let filtroActivo = "Todos";
+  let filtroActivo = "Todos"];
 let eventoSeleccionado = null;
-
+let misReservas = JSON.parse(localStorage.getItem("misReservas")) || [];
 
 const board = document.getElementById("board");
 const filtrosEl = document.getElementById("filtros");
@@ -147,6 +145,7 @@ formReserva.addEventListener("submit", (ev) => {
   cerrarModal();
   renderBoard();
   renderReservas();
+  localStorage.setItem("misReservas", JSON.stringify(misReservas));
   mostrarToast(`Reserva confirmada: ${plazas} plaza(s) en "${eventoSeleccionado.titulo}"`);
 });
 
@@ -184,3 +183,11 @@ document.getElementById("btnLogin").addEventListener("click", () => {
 renderFiltros();
 renderBoard();
 renderReservas();
+// Ejercicio 1: Mostrar mensaje en consola al pulsar el botón de login/acceder
+const botonAcceder = document.getElementById("btnLogin");
+
+if (botonAcceder) {
+    botonAcceder.addEventListener("click", function() {
+        console.log("¡Botón principal pulsado correctamente en el módulo deportivo!");
+    });
+}

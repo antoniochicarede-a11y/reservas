@@ -309,7 +309,7 @@ a {
   grid-template-columns: 250px 1fr;
   grid-template-rows: 70px 1fr;
   min-height: 100vh;
-}root{
+}:root{
   --pitch: #1B4332;
   --pitch-dark: #10281F;
   --chalk: #F7F5EF;

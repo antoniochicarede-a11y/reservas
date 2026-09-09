@@ -1,4 +1,3 @@
-
 const eventos = [
   { id: 1, deporte: "Pádel",    titulo: "Pista Central · Liga amistosa", fecha: "Sáb 22 ago · 10:00", lugar: "Club Norte", plazasTotal: 4, plazasOcupadas: 1 },
   { id: 2, deporte: "Fútbol 7", titulo: "Partido abierto de barrio",     fecha: "Sáb 22 ago · 18:00", lugar: "Polideportivo Sur", plazasTotal: 14, plazasOcupadas: 14 },
@@ -6,8 +5,9 @@ const eventos = [
   { id: 4, deporte: "Tenis",    titulo: "Pista 2 · Reserva individual",  fecha: "Dom 23 ago · 09:00", lugar: "Club Norte", plazasTotal: 2, plazasOcupadas: 0 },
   { id: 5, deporte: "Pádel",    titulo: "Pista 4 · Dobles nocturno",     fecha: "Lun 24 ago · 21:00", lugar: "Club Este", plazasTotal: 4, plazasOcupadas: 2 },
   { id: 6, deporte: "Running", titulo: "Salida grupal 10K",              fecha: "Mar 25 ago · 07:30", lugar: "Parque del Río", plazasTotal: 20, plazasOcupadas: 6 },
+];
 
-  let filtroActivo = "Todos"];
+let filtroActivo = "Todos";
 let eventoSeleccionado = null;
 let misReservas = JSON.parse(localStorage.getItem("misReservas")) || [];
 

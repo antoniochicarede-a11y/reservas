@@ -7,7 +7,11 @@ const eventos = [
   { id: 6, deporte: "Running", titulo: "Salida grupal 10K",              fecha: "Mar 25 ago · 07:30", lugar: "Parque del Río", plazasTotal: 20, plazasOcupadas: 6 },
 ];
 
+<<<<<<< Updated upstream
 let filtroActivo = "Todos";
+=======
+let filtroActivo = "Todos"];
+>>>>>>> Stashed changes
 let eventoSeleccionado = null;
 let misReservas = JSON.parse(localStorage.getItem("misReservas")) || [];
 

@@ -309,6 +309,7 @@ a {
   grid-template-columns: 250px 1fr;
   grid-template-rows: 70px 1fr;
   min-height: 100vh;
+  /* Sección creada por David g*/
 }:root{
   --pitch: #1B4332;
   --pitch-dark: #10281F;

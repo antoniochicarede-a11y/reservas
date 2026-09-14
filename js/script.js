@@ -187,6 +187,7 @@ document.getElementById("btnLogin").addEventListener("click", () => {
 renderFiltros();
 renderBoard();
 renderReservas();
+<<<<<<< HEAD:js/script.js
 // Ejercicio 1: Mostrar mensaje en consola al pulsar el botón de login/acceder
 const botonAcceder = document.getElementById("btnLogin");
 
@@ -195,3 +196,84 @@ if (botonAcceder) {
         console.log("¡Botón principal pulsado correctamente en el módulo deportivo!");
     });
 }
+=======
+// --- BLOQUE 1 Y 2: EVENTOS Y MOSTRAR/OCULTAR ---
+
+// Función para mostrar los eventos en el tablero
+function renderizarEventos() {
+    if (!board) return;
+    board.innerHTML = "";
+
+    eventos.forEach((evento) => {
+        const tarjeta = document.createElement("article");
+        tarjeta.className = "card";
+        tarjeta.innerHTML = `
+            <h3>${evento.titulo}</h3>
+            <p>Deporte: ${evento.deporte}</p>
+            <button class="btn-detalle" onclick="verDetalle(${evento.id})">Ver detalle</button>
+            <button class="btn-reservar" onclick="abrirModal(${evento.id})">Reservar</button>
+        `;
+        board.appendChild(tarjeta);
+    });
+}// --- BLOQUE 3 Y 5: FORMULARIO, VALIDACIÓN Y LOCALSTORAGE ---
+
+/* 
+ * BLOQUE 3 Y 5: Manejo del formulario, validación y almacenamiento en localStorage.
+ * ¿Qué hace?: Captura el envío de la reserva, comprueba que los datos no estén vacíos 
+ *              y los guarda en el navegador.
+ * ¿Cómo funciona?: Intercepta el evento "submit", evita el refresco por defecto con 
+ *                  preventDefault(), lee los valores de los inputs y usa localStorage.setItem().
+ * ¿Por qué?: Para garantizar la persistencia de datos del usuario sin depender de un servidor backend.
+ */
+if (formReserva) {
+    formReserva.addEventListener("submit", (e) => {
+        e.preventDefault(); // Impedir el envío por defecto
+
+        // Obtener valores de los inputs
+        const nombreInput = document.getElementById("nombre");
+        const fechaInput = document.getElementById("fecha");
+
+        const nombre = nombreInput ? nombreInput.value.trim() : "";
+        const fecha = fechaInput ? fechaInput.value : "";
+
+        // Validaciones básicas: campos vacíos
+        if (!nombre || !fecha) {
+            alert("Error: Por favor, completa todos los campos obligatorios.");
+            return;
+        }
+
+        // Crear objeto de reserva siguiendo el modelo común
+        const nuevaReserva = {
+            id: Date.now(),
+            eventoId: eventoSeleccionado,
+            usuario: nombre,
+            fecha: fecha
+        };
+
+        // Guardar en array local
+        misReservas.push(nuevaReserva);
+
+        // Guardar en localStorage con la clave del módulo
+        localStorage.setItem("reservas_deportivo", JSON.stringify(misReservas));
+
+        alert(`¡Reserva confirmada para ${nombre}!`);
+        
+        // Limpiar formulario y cerrar modal si existe
+        if (typeof limpiarFormulario === "function") limpiarFormulario();
+        if (typeof cerrarModal === "function") cerrarModal();
+    });
+}
+
+// Cargar reservas guardadas al iniciar la página
+function cargarReservasGuardadas() {
+    const reservasGuardadas = localStorage.getItem("reservas_deportivo");
+    if (reservasGuardadas) {
+        const parsed = JSON.parse(reservasGuardadas);
+        misReservas.push(...parsed);
+        console.log("Reservas recuperadas de localStorage:", misReservas);
+    }
+}
+
+// Ejecutar al cargar
+cargarReservasGuardadas();
+>>>>>>> 5717540 (docs: completar memoria de explicacion de david):script.js

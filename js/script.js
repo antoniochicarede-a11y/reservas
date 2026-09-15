@@ -36,6 +36,8 @@ const statReservas = document.getElementById('statReservas');
 // Carga de datos desde la BD
 // ------------------------------------------------------------
 
+
+//funcion de cargar recursos
 async function cargarRecursos() {
   try {
     const resp = await fetch(API.recursos);

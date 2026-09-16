@@ -20,6 +20,18 @@ header('Content-Type: application/json; charset=utf-8');
 $fecha = $_GET['fecha'] ?? null;
 $hora  = $_GET['hora'] ?? null;
 
+// Validamos el formato antes de usarlos en la consulta.
+if ($fecha !== null && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+    http_response_code(400);
+    echo json_encode(['ok' => false, 'error' => 'Formato de fecha inválido. Usa AAAA-MM-DD.']);
+    exit;
+}
+if ($hora !== null && !preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $hora)) {
+    http_response_code(400);
+    echo json_encode(['ok' => false, 'error' => 'Formato de hora inválido. Usa HH:MM o HH:MM:SS.']);
+    exit;
+}
+
 try {
     if ($fecha && $hora) {
         // Resta las reservas confirmadas de esa fecha/hora a la capacidad total
@@ -27,10 +39,10 @@ try {
             SELECT
                 r.id_recurso,
                 r.nombre,
-                r.descripción AS descripcion,
+                r.descripcion,
                 r.tipo,
                 r.capacidad,
-                (r.capacidad - COALESCE(res.ocupadas, 0)) AS plazas_libres
+                GREATEST(0, r.capacidad - COALESCE(res.ocupadas, 0)) AS plazas_libres
             FROM recursos r
             LEFT JOIN (
                 SELECT id_recurso, COUNT(*) AS ocupadas
@@ -45,7 +57,7 @@ try {
     } else {
         // Sin fecha/hora: se devuelve la capacidad total como plazas_libres
         $sql = "
-            SELECT id_recurso, nombre, descripción AS descripcion, tipo,
+            SELECT id_recurso, nombre, descripcion, tipo,
                    capacidad, capacidad AS plazas_libres
             FROM recursos
             ORDER BY nombre
@@ -57,6 +69,8 @@ try {
 
     echo json_encode(['ok' => true, 'recursos' => $recursos]);
 } catch (PDOException $e) {
+    error_log('[recursos.php] Error al obtener recursos: ' . $e->getMessage());
+
     http_response_code(500);
     echo json_encode(['ok' => false, 'error' => 'Error al obtener los recursos.']);
 }

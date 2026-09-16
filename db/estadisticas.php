@@ -7,6 +7,10 @@
  * - plazas_libres: capacidad total menos reservas confirmadas de HOY
  * - reservas_hoy: número de reservas confirmadas con fecha = hoy
  *
+ * NOTA: "plazas_libres" asume que cada reserva ocupa 1 plaza.
+ * Si una reserva puede ocupar varias plazas (ej. reservas grupales),
+ * cambia la resta para usar SUM(plazas) en vez de COUNT(*) de reservas.
+ *
  * Respuesta:
  * { "ok": true, "eventos_activos": 4, "plazas_libres": 18, "reservas_hoy": 2 }
  */
@@ -32,6 +36,9 @@ try {
         'reservas_hoy'    => $reservasHoy,
     ]);
 } catch (PDOException $e) {
+    // Guardamos el error real en el log del servidor para poder depurarlo.
+    error_log('[estadisticas.php] Error al calcular estadísticas: ' . $e->getMessage());
+
     http_response_code(500);
     echo json_encode(['ok' => false, 'error' => 'Error al calcular las estadísticas.']);
 }

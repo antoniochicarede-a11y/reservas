@@ -14,7 +14,7 @@
  * ]}
  */
 
-require_once __DIR__ . '/../conexion.php';
+require_once __DIR__ . '/conexion.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $fecha = $_GET['fecha'] ?? null;

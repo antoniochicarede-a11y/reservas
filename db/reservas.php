@@ -10,7 +10,7 @@
  *      "reservas" por cada plaza solicitada, si hay hueco disponible.
  */
 
-require_once __DIR__ . '/../conexion.php';
+require_once __DIR__ . '/conexion.php';
 header('Content-Type: application/json; charset=utf-8');
 
 const MAX_PLAZAS_POR_RESERVA = 20;

@@ -15,7 +15,7 @@
  * { "ok": true, "eventos_activos": 4, "plazas_libres": 18, "reservas_hoy": 2 }
  */
 
-require_once __DIR__ . '/../conexion.php';
+require_once __DIR__ . '/conexion.php';
 header('Content-Type: application/json; charset=utf-8');
 
 try {

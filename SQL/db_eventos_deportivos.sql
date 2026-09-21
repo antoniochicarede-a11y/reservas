@@ -41,7 +41,7 @@ CREATE TABLE `recursos` (
 -- Volcado de datos para la tabla `recursos`
 --
 
-INSERT INTO `recursos` (`id_recurso`, `nombre`, `descripción`, `capacidad`, `tipo`) VALUES
+INSERT INTO `recursos` (`id_recurso`, `nombre`, `descripcion`, `capacidad`, `tipo`) VALUES
 (1, 'Pista de Pádel 1', 'Pista de cristal exterior con iluminación LED', 4, 'Pádel'),
 (2, 'Pista de Tenis Central', 'Pista de superficie rápida (hard court)', 2, 'Tenis'),
 (3, 'Pista de Fútbol Sala', 'Pista cubierta de parqué con porterías reglamentarias', 10, 'Fútbol Sala'),

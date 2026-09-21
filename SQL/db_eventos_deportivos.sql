@@ -18,7 +18,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `db_eventos_deportivos`
+/*comentado por ana he descomentado la base de datos */
+Base de datos: `db_eventos_deportivos`
 --
 
 -- --------------------------------------------------------

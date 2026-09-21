@@ -32,7 +32,7 @@ USE db_eventos_deportivos;
 CREATE TABLE `recursos` (
   `id_recurso` int(11) NOT NULL,
   `nombre` varchar(100) NOT NULL,
-  `descripción` text DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
   `capacidad` int(11) NOT NULL,
   `tipo` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

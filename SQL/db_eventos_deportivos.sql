@@ -20,7 +20,8 @@ SET time_zone = "+00:00";
 --
 /*comentado por ana he descomentado la base de datos */
 Base de datos: `db_eventos_deportivos`
---
+CREATE DATABASE IF NOT EXISTS db_eventos_deportivos;
+USE db_eventos_deportivos; 
 
 -- --------------------------------------------------------
 

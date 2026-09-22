@@ -1,143 +1,109 @@
 <?php
-/**
- * GET  /api/reservas.php?email=correo@ejemplo.com
- *   -> Devuelve las reservas de ese usuario ("Mis reservas").
- *
- * POST /api/reservas.php
- *   Body JSON: { "nombre":"Laura Gómez", "email":"...", "id_recurso":1,
- *                "fecha":"2026-06-15", "hora":"18:00:00", "plazas":2 }
- *   -> Crea (o reutiliza) el usuario por email y crea una fila en
- *      "reservas" por cada plaza solicitada, si hay hueco disponible.
- */
-
-require_once __DIR__ . '/../conexion.php';
+require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/conexion.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $metodo = $_SERVER['REQUEST_METHOD'];
 
+// ------------------------------------------------------------
+// GET: reservas del usuario que ha iniciado sesión
+// ------------------------------------------------------------
 if ($metodo === 'GET') {
-    listarReservas($pdo);
-} elseif ($metodo === 'POST') {
-    crearReserva($pdo);
-} else {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'error' => 'Método no permitido.']);
+    requiereLogin();
+    $usuario = usuarioActual();
+
+    try {
+        $sql = "SELECT res.id_reserva, res.plazas, res.estado, res.fecha_creacion,
+                       r.nombre AS recurso, r.tipo,
+                       DATE_FORMAT(r.fecha, '%d/%m/%Y') AS fecha,
+                       TIME_FORMAT(r.hora, '%H:%i') AS hora
+                FROM reservas res
+                JOIN recursos r ON r.id_recurso = res.id_recurso
+                WHERE res.id_usuario = :id_usuario
+                ORDER BY r.fecha DESC, r.hora DESC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['id_usuario' => $usuario['id']]);
+
+        echo json_encode(['ok' => true, 'reservas' => $stmt->fetchAll()]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['ok' => false, 'error' => 'No se pudieron cargar tus reservas.']);
+    }
+    exit;
 }
 
-function listarReservas(PDO $pdo): void
-{
-    $email = $_GET['email'] ?? '';
-    if ($email === '') {
+// ------------------------------------------------------------
+// POST: crear una nueva reserva (usuario logueado)
+// ------------------------------------------------------------
+if ($metodo === 'POST') {
+    requiereLogin();
+    $usuario = usuarioActual();
+
+    $datos      = json_decode(file_get_contents('php://input'), true);
+    $plazas     = (int)($datos['plazas'] ?? 0);
+    $id_recurso = (int)($datos['id_recurso'] ?? 0);
+
+    if ($plazas < 1 || $id_recurso < 1) {
         http_response_code(400);
-        echo json_encode(['ok' => false, 'error' => 'Falta el parámetro email.']);
-        return;
+        echo json_encode(['ok' => false, 'error' => 'Indica cuántas plazas quieres reservar.']);
+        exit;
     }
-
-    $sql = "
-        SELECT res.id_reserva, res.fecha, res.hora, res.estado,
-               rec.nombre AS recurso, rec.tipo
-        FROM reservas res
-        JOIN usuarios u  ON u.id_usuario  = res.id_usuario
-        JOIN recursos rec ON rec.id_recurso = res.id_recurso
-        WHERE u.email = :email
-        ORDER BY res.fecha DESC, res.hora DESC
-    ";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['email' => $email]);
-
-    echo json_encode(['ok' => true, 'reservas' => $stmt->fetchAll()]);
-}
-
-function crearReserva(PDO $pdo): void
-{
-    $datos = json_decode(file_get_contents('php://input'), true);
-
-    $nombreCompleto = trim($datos['nombre'] ?? '');
-    $email          = trim($datos['email'] ?? '');
-    $idRecurso      = (int)($datos['id_recurso'] ?? 0);
-    $fecha          = $datos['fecha'] ?? '';
-    $hora           = $datos['hora'] ?? '';
-    $plazas         = max(1, (int)($datos['plazas'] ?? 1));
-
-    if ($nombreCompleto === '' || $email === '' || !$idRecurso || $fecha === '' || $hora === '') {
-        http_response_code(400);
-        echo json_encode(['ok' => false, 'error' => 'Faltan datos obligatorios.']);
-        return;
-    }
-
-    // El formulario solo pide "nombre y apellidos" en un único campo;
-    // la tabla usuarios separa nombre y apellidos, así que se divide aquí.
-    $partes    = explode(' ', $nombreCompleto, 2);
-    $nombre    = $partes[0];
-    $apellidos = $partes[1] ?? '';
 
     try {
         $pdo->beginTransaction();
 
-        // 1) Buscar o crear el usuario por email
-        $stmt = $pdo->prepare('SELECT id_usuario FROM usuarios WHERE email = :email');
-        $stmt->execute(['email' => $email]);
-        $usuario = $stmt->fetch();
-
-        if ($usuario) {
-            $idUsuario = $usuario['id_usuario'];
-        } else {
-            $stmt = $pdo->prepare(
-                'INSERT INTO usuarios (nombre, apellidos, email) VALUES (:nombre, :apellidos, :email)'
-            );
-            $stmt->execute(['nombre' => $nombre, 'apellidos' => $apellidos, 'email' => $email]);
-            $idUsuario = $pdo->lastInsertId();
-        }
-
-        // 2) Comprobar plazas disponibles para ese recurso/fecha/hora
-        $stmt = $pdo->prepare('SELECT capacidad FROM recursos WHERE id_recurso = :id');
-        $stmt->execute(['id' => $idRecurso]);
+        // Bloquea la fila del recurso mientras comprobamos el aforo
+        $stmt = $pdo->prepare(
+            "SELECT capacidad FROM recursos WHERE id_recurso = :id AND activo = 1 FOR UPDATE"
+        );
+        $stmt->execute(['id' => $id_recurso]);
         $recurso = $stmt->fetch();
 
         if (!$recurso) {
             $pdo->rollBack();
             http_response_code(404);
-            echo json_encode(['ok' => false, 'error' => 'El recurso indicado no existe.']);
-            return;
+            echo json_encode(['ok' => false, 'error' => 'El evento no existe o ya no está disponible.']);
+            exit;
         }
 
         $stmt = $pdo->prepare(
-            "SELECT COUNT(*) AS ocupadas FROM reservas
-             WHERE id_recurso = :id AND fecha = :fecha AND hora = :hora AND estado = 'Confirmada'"
+            "SELECT COALESCE(SUM(plazas), 0) AS ocupadas
+             FROM reservas
+             WHERE id_recurso = :id AND estado = 'confirmada'"
         );
-        $stmt->execute(['id' => $idRecurso, 'fecha' => $fecha, 'hora' => $hora]);
+        $stmt->execute(['id' => $id_recurso]);
         $ocupadas = (int)$stmt->fetch()['ocupadas'];
+        $libres   = $recurso['capacidad'] - $ocupadas;
 
-        $libres = $recurso['capacidad'] - $ocupadas;
         if ($plazas > $libres) {
             $pdo->rollBack();
             http_response_code(409);
-            echo json_encode([
-                'ok' => false,
-                'error' => "Solo quedan $libres plaza(s) libres para ese horario.",
-            ]);
-            return;
+            echo json_encode(['ok' => false, 'error' => "Solo quedan {$libres} plaza(s) disponibles."]);
+            exit;
         }
 
-        // 3) Insertar una fila de reserva por cada plaza solicitada
+        // Nombre y email vienen de la sesión, nunca de lo que mande el navegador
         $stmt = $pdo->prepare(
-            'INSERT INTO reservas (id_usuario, id_recurso, fecha, hora, estado)
-             VALUES (:id_usuario, :id_recurso, :fecha, :hora, \'Confirmada\')'
+            "INSERT INTO reservas (id_recurso, id_usuario, nombre, email, plazas, estado)
+             VALUES (:id_recurso, :id_usuario, :nombre, :email, :plazas, 'confirmada')"
         );
-        for ($i = 0; $i < $plazas; $i++) {
-            $stmt->execute([
-                'id_usuario' => $idUsuario,
-                'id_recurso' => $idRecurso,
-                'fecha'      => $fecha,
-                'hora'       => $hora,
-            ]);
-        }
+        $stmt->execute([
+            'id_recurso' => $id_recurso,
+            'id_usuario' => $usuario['id'],
+            'nombre'     => $usuario['nombre'],
+            'email'      => $usuario['email'],
+            'plazas'     => $plazas,
+        ]);
 
         $pdo->commit();
-        echo json_encode(['ok' => true, 'mensaje' => 'Reserva confirmada.']);
+        echo json_encode(['ok' => true, 'id_reserva' => $pdo->lastInsertId()]);
     } catch (PDOException $e) {
         $pdo->rollBack();
         http_response_code(500);
-        echo json_encode(['ok' => false, 'error' => 'Error al crear la reserva.']);
+        echo json_encode(['ok' => false, 'error' => 'No se pudo guardar la reserva.']);
     }
+    exit;
 }
+
+http_response_code(405);
+echo json_encode(['ok' => false, 'error' => 'Método no permitido.']);

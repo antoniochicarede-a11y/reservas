@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style/styles.css">
+<link rel="stylesheet" href="style/app-extra.css">
 </head>
 <body>
 
@@ -21,7 +22,10 @@
         <a href="#como-funciona" class="nav__link">Cómo funciona</a>
         <a href="#mis-reservas" class="nav__link">Mis reservas</a>
       </nav>
-      <button class="btn btn--ghost" id="btnLogin">Acceder</button>
+      <!-- Se rellena por JS (auth.js) según haya o no sesión iniciada -->
+      <div class="nav__actions" id="topbarAcciones">
+        <a href="login.html" class="btn btn--ghost">Acceder</a>
+      </div>
     </div>
   </header>
 
@@ -39,15 +43,7 @@
         <div class="stat"><span class="stat__num" id="statPlazas">0</span><span class="stat__label">plazas libres</span></div>
         <div class="stat"><span class="stat__num" id="statReservas">0</span><span class="stat__label">reservas hoy</span></div>
       </div>
-      <section class="deportes">
-  <h2>Deportes disponibles</h2>
-  <ul>
-    <li>Fútbol 7 y Fútbol 11</li>
-    <li>Tenis y Pádel</li>
-    <li>Baloncesto</li>
-    <li>Carreras populares</li>
-  </ul>
-</section>
+    
     </div>
   </section>
 
@@ -64,18 +60,18 @@
     <ol class="steps">
       <li class="steps__item">
         <span class="steps__num">01</span>
+        <h3>Crea tu cuenta</h3>
+        <p>Regístrate con tu correo. Sin cuenta no se puede reservar, para que cada plaza quede siempre a nombre de alguien real.</p>
+      </li>
+      <li class="steps__item">
+        <span class="steps__num">02</span>
         <h3>Elige tu evento</h3>
         <p>Filtra por deporte y revisa el marcador de plazas disponibles de cada pista.</p>
       </li>
       <li class="steps__item">
-        <span class="steps__num">02</span>
-        <h3>Reserva tu plaza</h3>
-        <p>Rellena tus datos en el formulario emergente. Sin registros complicados.</p>
-      </li>
-      <li class="steps__item">
         <span class="steps__num">03</span>
-        <h3>Recibe la confirmación</h3>
-        <p>Tu plaza queda bloqueada al instante y aparece en "Mis reservas".</p>
+        <h3>Reserva tu plaza</h3>
+        <p>Confirma cuántas plazas necesitas. Tu reserva queda bloqueada al instante y aparece en "Mis reservas".</p>
       </li>
     </ol>
   </section>
@@ -83,7 +79,7 @@
   <section class="section" id="mis-reservas">
     <h2 class="section__title">Mis reservas</h2>
     <div class="reservas-list" id="reservasList">
-      <p class="empty">Todavía no has reservado ninguna plaza. Elige un evento arriba para empezar.</p>
+      <p class="empty">Inicia sesión para ver tus reservas.</p>
     </div>
   </section>
 
@@ -100,14 +96,7 @@
       <p class="modal__meta" id="modalMeta">Fecha · Lugar</p>
 
       <form id="formReserva" class="form">
-        <label class="field">
-          <span>Nombre y apellidos</span>
-          <input type="text" name="nombre" required placeholder="Ej. Laura Gómez">
-        </label>
-        <label class="field">
-          <span>Correo electrónico</span>
-          <input type="email" name="email" required placeholder="tucorreo@ejemplo.com">
-        </label>
+        <p class="reserva-como" id="reservaComo"><!-- "Reservando como: Nombre (email)" --></p>
         <label class="field">
           <span>Número de plazas</span>
           <input type="number" name="plazas" min="1" max="4" value="1" required>
@@ -120,6 +109,7 @@
 
   <div class="toast" id="toast"></div>
 
+  <script src="js/auth.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

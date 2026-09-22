@@ -1,21 +1,21 @@
 // ============================================================
 // script.js
-// Ahora la información viene de la base de datos a través de
-// los endpoints PHP: api/recursos.php, api/reservas.php,
-// api/estadisticas.php. Ajusta las rutas de API si tu carpeta
-// "api" no está justo al lado de este script.
+// Datos desde db/recursos.php, db/reservas.php, db/estadisticas.php.
+// Reservar y ver "Mis reservas" ahora requiere sesión iniciada
+// (auth.js gestiona el topbar; aquí solo se usa db/sesion.php
+// para saber en nombre de quién se reserva).
 // ============================================================
 
 const API = {
-  recursos: 'api/recursos.php',
-  reservas: 'api/reservas.php',
-  estadisticas: 'api/estadisticas.php',
+  recursos: 'db/recursos.php',
+  reservas: 'db/reservas.php',
+  estadisticas: 'db/estadisticas.php',
+  sesion: 'db/sesion.php',
 };
 
-let recursos = [];                 // pistas traídas de la BD
+let recursos = [];
 let filtroActivo = 'Todos';
 let recursoSeleccionado = null;
-let emailActual = localStorage.getItem('emailReservas') || '';
 
 const board = document.getElementById('board');
 const filtrosEl = document.getElementById('filtros');
@@ -24,6 +24,7 @@ const modal = document.getElementById('modal');
 const modalDeporte = document.getElementById('modalDeporte');
 const modalTitulo = document.getElementById('modalTitulo');
 const modalMeta = document.getElementById('modalMeta');
+const reservaComo = document.getElementById('reservaComo');
 const formReserva = document.getElementById('formReserva');
 const formError = document.getElementById('formError');
 const toast = document.getElementById('toast');
@@ -31,6 +32,20 @@ const toast = document.getElementById('toast');
 const statEventos = document.getElementById('statEventos');
 const statPlazas = document.getElementById('statPlazas');
 const statReservas = document.getElementById('statReservas');
+
+// ------------------------------------------------------------
+// Sesión
+// ------------------------------------------------------------
+
+async function obtenerSesion() {
+  try {
+    const resp = await fetch(API.sesion, { credentials: 'include' });
+    const data = await resp.json();
+    return data.ok ? data.usuario : null;
+  } catch (err) {
+    return null;
+  }
+}
 
 // ------------------------------------------------------------
 // Carga de datos desde la BD
@@ -67,17 +82,16 @@ async function cargarEstadisticas() {
 }
 
 async function cargarMisReservas() {
-  if (!emailActual) {
-    reservasList.innerHTML = `<p class="empty">Todavía no has reservado ninguna plaza. Elige una pista arriba para empezar.</p>`;
-    return;
-  }
-
   try {
-    const resp = await fetch(`${API.reservas}?email=${encodeURIComponent(emailActual)}`);
+    const resp = await fetch(API.reservas, { credentials: 'include' });
     const data = await resp.json();
 
+    if (resp.status === 401) {
+      reservasList.innerHTML = `<p class="empty">Inicia sesión para ver tus reservas.</p>`;
+      return;
+    }
     if (!data.ok || data.reservas.length === 0) {
-      reservasList.innerHTML = `<p class="empty">Todavía no has reservado ninguna plaza. Elige una pista arriba para empezar.</p>`;
+      reservasList.innerHTML = `<p class="empty">Todavía no has reservado ninguna plaza. Elige un evento arriba para empezar.</p>`;
       return;
     }
 
@@ -87,7 +101,7 @@ async function cargarMisReservas() {
           <strong>${r.recurso}</strong>
           <span>${r.fecha} · ${r.hora} · ${r.estado}</span>
         </div>
-        <span class="badge">${r.tipo}</span>
+        <span class="badge">${r.plazas} plaza(s)</span>
       </div>
     `).join('');
   } catch (err) {
@@ -117,56 +131,64 @@ function renderFiltros() {
 function renderBoard() {
   const lista = recursos.filter(r => filtroActivo === 'Todos' || r.tipo === filtroActivo);
 
-  board.innerHTML = lista.map(r => `
+  board.innerHTML = lista.map(r => {
+    const sinPlazas = r.plazas_libres <= 0;
+    return `
     <article class="card">
       <div class="card__band">
         <span class="card__sport">${r.tipo}</span>
-        <span class="card__slots">${r.capacidad} plazas</span>
+        <span class="card__slots">${r.plazas_libres} / ${r.capacidad} plazas</span>
       </div>
       <div class="card__body">
         <h3 class="card__title">${r.nombre}</h3>
         <p class="card__meta">${r.descripcion ?? ''}</p>
+        <p class="card__meta">${formatearFecha(r.fecha)} · ${r.hora?.slice(0, 5) ?? ''} · ${r.lugar ?? ''}</p>
       </div>
       <div class="card__footer">
-        <button class="btn btn--primary btn--block" data-id="${r.id_recurso}">
-          Reservar plaza
+        <button class="btn btn--primary btn--block" data-id="${r.id_recurso}" ${sinPlazas ? 'disabled' : ''}>
+          ${sinPlazas ? 'Completo' : 'Reservar plaza'}
         </button>
       </div>
     </article>
-  `).join('');
+  `;
+  }).join('');
 
   board.querySelectorAll('button[data-id]').forEach(btn => {
     btn.addEventListener('click', () => abrirModal(Number(btn.dataset.id)));
   });
 }
 
-function renderReservas() {
-  cargarMisReservas();
+function formatearFecha(fechaISO) {
+  if (!fechaISO) return '';
+  const [anio, mes, dia] = fechaISO.split('-');
+  return `${dia}/${mes}/${anio}`;
 }
 
 // ------------------------------------------------------------
 // Modal de reserva
 // ------------------------------------------------------------
 
-function abrirModal(id) {
+async function abrirModal(id) {
   recursoSeleccionado = recursos.find(r => r.id_recurso === id);
   if (!recursoSeleccionado) return;
 
+  // Comprobamos la sesión en el momento de reservar (puede haber caducado)
+  const usuario = await obtenerSesion();
+  if (!usuario) {
+    mostrarToast('Inicia sesión para reservar tu plaza.');
+    setTimeout(() => { window.location.href = 'login.html'; }, 900);
+    return;
+  }
+
   modalDeporte.textContent = recursoSeleccionado.tipo;
   modalTitulo.textContent = recursoSeleccionado.nombre;
-  modalMeta.textContent = recursoSeleccionado.descripcion
-    || `Capacidad: ${recursoSeleccionado.capacidad} persona(s)`;
+  modalMeta.textContent = `${formatearFecha(recursoSeleccionado.fecha)} · ${recursoSeleccionado.hora?.slice(0, 5) ?? ''} · ${recursoSeleccionado.lugar ?? ''}`;
+  reservaComo.textContent = `Reservando como: ${usuario.nombre} (${usuario.email})`;
   formError.textContent = '';
   formReserva.reset();
 
-  // La fecha mínima seleccionable es hoy
-  const hoy = new Date().toISOString().split('T')[0];
-  if (formReserva.fecha) {
-    formReserva.fecha.min = hoy;
-    formReserva.fecha.value = hoy;
-  }
   if (formReserva.plazas) {
-    formReserva.plazas.max = recursoSeleccionado.capacidad;
+    formReserva.plazas.max = Math.max(1, recursoSeleccionado.plazas_libres);
   }
 
   modal.classList.add('is-open');
@@ -192,14 +214,10 @@ formReserva.addEventListener('submit', async (ev) => {
   if (!recursoSeleccionado) return;
 
   const datos = new FormData(formReserva);
-  const nombre = (datos.get('nombre') || '').trim();
-  const email = (datos.get('email') || '').trim();
-  const fecha = datos.get('fecha');
-  const hora = datos.get('hora');
   const plazas = Number(datos.get('plazas'));
 
-  if (!nombre || !email || !fecha || !hora) {
-    formError.textContent = 'Rellena todos los campos, incluida la fecha y la hora.';
+  if (!plazas || plazas < 1) {
+    formError.textContent = 'Indica cuántas plazas quieres reservar.';
     return;
   }
 
@@ -211,29 +229,28 @@ formReserva.addEventListener('submit', async (ev) => {
     const resp = await fetch(API.reservas, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
-        nombre,
-        email,
         plazas,
         id_recurso: recursoSeleccionado.id_recurso,
-        fecha,
-        hora,
       }),
     });
     const data = await resp.json();
 
     if (!data.ok) {
-      formError.textContent = data.error || 'No se pudo completar la reserva.';
+      if (resp.status === 401) {
+        formError.textContent = 'Tu sesión ha caducado. Vuelve a iniciar sesión.';
+      } else {
+        formError.textContent = data.error || 'No se pudo completar la reserva.';
+      }
       return;
     }
-
-    emailActual = email;
-    localStorage.setItem('emailReservas', email);
 
     const nombrePista = recursoSeleccionado.nombre;
     cerrarModal();
     mostrarToast(`Reserva confirmada: ${plazas} plaza(s) en "${nombrePista}"`);
 
+    cargarRecursos();
     cargarEstadisticas();
     cargarMisReservas();
   } catch (err) {
@@ -254,15 +271,6 @@ function mostrarToast(mensaje) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3200);
 }
-
-// ------------------------------------------------------------
-// Botón "Acceder" (login llegará en otra fase)
-// ------------------------------------------------------------
-
-document.getElementById('btnLogin').addEventListener('click', () => {
-  console.log('¡Botón principal pulsado correctamente en el módulo deportivo!');
-  mostrarToast('El acceso de usuarios llegará en una próxima fase del proyecto.');
-});
 
 // ------------------------------------------------------------
 // Arranque

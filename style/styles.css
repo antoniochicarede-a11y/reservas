@@ -715,3 +715,216 @@ a{ color:inherit; }
   }
 
 }
+/* ============================================================
+   app-extra.css
+   Piezas nuevas: acciones del topbar según sesión, panel admin
+   y aviso de "reservando como" en el modal.
+   ============================================================ */
+
+.nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.nav__user {
+  font-size: 0.9rem;
+  color: #fff;
+  opacity: 0.9;
+}
+
+.reserva-como {
+  background: #f5f1e6;
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #22301f;
+}
+
+/* Panel de administración */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.form--grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  max-width: 720px;
+}
+
+.form--grid .field:nth-child(3),
+.form--grid button,
+.form--grid .form__error {
+  grid-column: 1 / -1;
+}
+
+.admin-event {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid #e4e0d4;
+  border-radius: 10px;
+  margin-bottom: 0.6rem;
+  background: #fff;
+}
+
+.admin-event span {
+  color: #6b6455;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .form--grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* ============================================================
+   app-extra.css
+   Piezas nuevas: acciones del topbar según sesión, panel admin
+   y aviso de "reservando como" en el modal.
+   ============================================================ */
+
+.nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.nav__user {
+  font-size: 0.9rem;
+  color: #fff;
+  opacity: 0.9;
+}
+
+.reserva-como {
+  background: #f5f1e6;
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #22301f;
+}
+
+/* Panel de administración */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.form--grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  max-width: 720px;
+}
+
+.form--grid .field:nth-child(3),
+.form--grid button,
+.form--grid .form__error {
+  grid-column: 1 / -1;
+}
+
+.admin-events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.admin-event {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.1rem;
+  border: 1px solid #e4e0d4;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.admin-event__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-event__badge {
+  display: inline-block;
+  background: #f2a33e;
+  color: #22301f;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.admin-event__delete {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.25rem 0.4rem;
+  border-radius: 8px;
+  color: #c0392b;
+  transition: background 0.15s ease;
+}
+
+.admin-event__delete:hover {
+  background: rgba(192, 57, 43, 0.1);
+}
+
+.admin-event__nombre {
+  margin: 0.2rem 0 0;
+  font-size: 1.05rem;
+  color: #22301f;
+}
+
+.admin-event__meta {
+  margin: 0;
+  color: #6b6455;
+  font-size: 0.85rem;
+}
+
+.admin-event__aforo {
+  margin-top: 0.5rem;
+}
+
+.admin-event__aforo-barra {
+  height: 6px;
+  border-radius: 999px;
+  background: #eee6d6;
+  overflow: hidden;
+}
+
+.admin-event__aforo-barra span {
+  display: block;
+  height: 100%;
+  background: #1f8a4c;
+  border-radius: 999px;
+}
+
+.admin-event__aforo-texto {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: #6b6455;
+}
+
+@media (max-width: 640px) {
+  .form--grid {
+    grid-template-columns: 1fr;
+  }
+}

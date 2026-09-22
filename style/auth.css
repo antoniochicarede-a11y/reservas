@@ -1,0 +1,141 @@
+/* ============================================================
+   auth.css
+   Estilos para login.html y registro.html.
+   Reutiliza los mismos botones (.btn, .btn--primary) definidos
+   en styles.css para que se vea todo coherente.
+   ============================================================ */
+
+:root {
+  --auth-bg: #f5f1e6;
+  --auth-dark: #1f2d24;
+  --auth-accent: #f2a33e;
+  --auth-text: #22301f;
+  --auth-error: #c0392b;
+  --auth-success: #1f8a4c;
+}
+
+body.auth-page {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--auth-bg);
+  font-family: 'Inter', sans-serif;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+}
+
+.auth-card__image {
+  display: block;
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.auth-card__brand {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.auth-card__brand .brand__mark {
+  color: var(--auth-accent);
+  font-size: 1.4rem;
+  margin-right: 0.35rem;
+}
+
+.auth-card__brand .brand__name {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1px;
+  font-size: 1.4rem;
+  color: var(--auth-dark);
+}
+
+.auth-card__brand .brand__name--accent {
+  color: var(--auth-accent);
+}
+
+.auth-card h1 {
+  text-align: center;
+  font-size: 1.6rem;
+  margin: 0 0 1.5rem;
+  color: var(--auth-text);
+}
+
+.field {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.field span {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--auth-text);
+}
+
+.field input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #d8d3c6;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--auth-accent);
+  box-shadow: 0 0 0 3px rgba(242, 163, 62, 0.25);
+}
+
+.field input:read-only {
+  background: #f5f1e6;
+  color: #6b6455;
+}
+
+.auth-error {
+  color: var(--auth-error);
+  text-align: center;
+  margin-top: 0.75rem;
+  min-height: 1.2em;
+  font-size: 0.9rem;
+}
+
+.auth-success {
+  color: var(--auth-success);
+  text-align: center;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.auth-card__footer {
+  text-align: center;
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--auth-text);
+}
+
+.auth-card__footer a {
+  color: var(--auth-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-card__footer a:hover {
+  text-decoration: underline;
+}

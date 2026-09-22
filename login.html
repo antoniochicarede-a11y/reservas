@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iniciar sesión · Reservas Deportivas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style/styles.css">
+<link rel="stylesheet" href="style/auth.css">
+</head>
+<body class="auth-page">
+
+  <div class="auth-card">
+    <!-- CAMBIA "PON-AQUI-TU-IMAGEN.jpg" por la ruta o URL de tu imagen -->
+    <img src="PON-AQUI-TU-IMAGEN.jpg" alt="Reservas Deportivas" class="auth-card__image">
+
+    <div class="auth-card__brand">
+      <span class="brand__mark">●</span>
+      <span class="brand__name">RESERVAS<span class="brand__name--accent">DEPORTIVAS</span></span>
+    </div>
+
+    <h1>Iniciar sesión</h1>
+
+    <form id="formLogin" novalidate>
+      <label class="field">
+        <span>Correo electrónico</span>
+        <input type="email" name="email" required placeholder="tucorreo@ejemplo.com" autocomplete="username">
+      </label>
+      <label class="field">
+        <span>Contraseña</span>
+        <input type="password" name="contrasena" required placeholder="••••••••" autocomplete="current-password">
+      </label>
+
+      <button type="submit" class="btn btn--primary btn--block">Entrar</button>
+      <p class="auth-error" id="authError"></p>
+    </form>
+
+    <p class="auth-card__footer">¿No tienes cuenta? <a href="registro.html">Regístrate</a></p>
+  </div>
+
+  <script>
+    const formLogin = document.getElementById('formLogin');
+    const authError = document.getElementById('authError');
+
+    formLogin.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      authError.textContent = '';
+
+      const datos = new FormData(formLogin);
+      const boton = formLogin.querySelector('button[type="submit"]');
+      boton.disabled = true;
+
+      try {
+        const resp = await fetch('db/login.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            email: datos.get('email').trim(),
+            contrasena: datos.get('contrasena'),
+          }),
+        });
+        const data = await resp.json();
+
+        if (!data.ok) {
+          authError.textContent = data.error || 'No se pudo iniciar sesión.';
+          return;
+        }
+
+        window.location.href = data.usuario.rol === 'admin' ? 'admin.html' : 'index.html';
+      } catch (err) {
+        authError.textContent = 'Error de conexión con el servidor.';
+      } finally {
+        boton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

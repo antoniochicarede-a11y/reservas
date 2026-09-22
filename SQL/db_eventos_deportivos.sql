@@ -1,155 +1,69 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Servidor: 127.0.0.1
--- Tiempo de generación: 14-09-2026 a las 14:05:13
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- ============================================================
+-- db_eventos_deportivos.sql
+-- Esquema completo: recursos (eventos), usuarios y reservas
+-- ============================================================
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+CREATE DATABASE IF NOT EXISTS db_eventos_deportivos
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+USE db_eventos_deportivos;
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+-- Usuarios de la plataforma (clientes y administradores)
+CREATE TABLE IF NOT EXISTS usuarios (
+  id_usuario       INT AUTO_INCREMENT PRIMARY KEY,
+  nombre           VARCHAR(120) NOT NULL,
+  email            VARCHAR(150) NOT NULL UNIQUE,
+  contrasena_hash  VARCHAR(255) NOT NULL,      -- nunca se guarda en texto plano
+  rol              ENUM('cliente', 'admin') NOT NULL DEFAULT 'cliente',
+  fecha_registro   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
-/*comentado por ana he descomentado la base de datos */
-Base de datos: `db_eventos_deportivos`
-CREATE DATABASE IF NOT EXISTS db_eventos_deportivos;
-USE db_eventos_deportivos; 
+-- Pistas / eventos disponibles para reservar (creados por el admin)
+CREATE TABLE IF NOT EXISTS recursos (
+  id_recurso   INT AUTO_INCREMENT PRIMARY KEY,
+  nombre       VARCHAR(120) NOT NULL,
+  tipo         VARCHAR(60)  NOT NULL,
+  descripcion  VARCHAR(255) NULL,
+  capacidad    INT NOT NULL DEFAULT 1,
+  fecha        DATE NOT NULL,
+  hora         TIME NOT NULL,
+  lugar        VARCHAR(120) NULL,
+  activo       TINYINT(1) NOT NULL DEFAULT 1,
+  creado_por   INT NULL,
+  CONSTRAINT fk_recurso_admin
+    FOREIGN KEY (creado_por) REFERENCES usuarios(id_usuario)
+    ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- --------------------------------------------------------
+-- Reservas hechas por usuarios registrados sobre un recurso
+CREATE TABLE IF NOT EXISTS reservas (
+  id_reserva      INT AUTO_INCREMENT PRIMARY KEY,
+  id_recurso      INT NOT NULL,
+  id_usuario      INT NOT NULL,
+  nombre          VARCHAR(120) NOT NULL,   -- copia del nombre en el momento de reservar
+  email           VARCHAR(150) NOT NULL,   -- copia del email en el momento de reservar
+  plazas          INT NOT NULL DEFAULT 1,
+  estado          VARCHAR(30) NOT NULL DEFAULT 'confirmada',
+  fecha_creacion  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_reserva_recurso
+    FOREIGN KEY (id_recurso) REFERENCES recursos(id_recurso)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_reserva_usuario
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Estructura de tabla para la tabla `recursos`
---
+-- Datos de ejemplo para poder probar el front-end
+INSERT INTO recursos (nombre, tipo, descripcion, capacidad, fecha, hora, lugar) VALUES
+('Pista Central - Fútbol 7', 'Fútbol 7 y Fútbol 11', 'Partido amistoso en césped artificial', 14, '2026-10-05', '18:00:00', 'Polideportivo Norte'),
+('Pista 2 - Pádel', 'Tenis y Pádel', 'Pista cubierta, se recomienda calzado adecuado', 4, '2026-10-06', '10:00:00', 'Club Deportivo Sur'),
+('Cancha 1 - Baloncesto 3x3', 'Baloncesto', 'Abierto a todos los niveles', 6, '2026-10-07', '19:30:00', 'Polideportivo Este'),
+('Carrera Popular 10K', 'Carreras populares', 'Circuito urbano de 10 km', 200, '2026-10-12', '09:00:00', 'Parque Central');
 
-CREATE TABLE `recursos` (
-  `id_recurso` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `descripcion` text DEFAULT NULL,
-  `capacidad` int(11) NOT NULL,
-  `tipo` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `recursos`
---
-
-INSERT INTO `recursos` (`id_recurso`, `nombre`, `descripcion`, `capacidad`, `tipo`) VALUES
-(1, 'Pista de Pádel 1', 'Pista de cristal exterior con iluminación LED', 4, 'Pádel'),
-(2, 'Pista de Tenis Central', 'Pista de superficie rápida (hard court)', 2, 'Tenis'),
-(3, 'Pista de Fútbol Sala', 'Pista cubierta de parqué con porterías reglamentarias', 10, 'Fútbol Sala'),
-(4, 'Pista de Baloncesto', 'Cancha exterior polideportiva', 10, 'Baloncesto');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `reservas`
---
-
-CREATE TABLE `reservas` (
-  `id_reserva` int(11) NOT NULL,
-  `id_usuario` int(11) NOT NULL,
-  `id_recurso` int(11) NOT NULL,
-  `fecha` date NOT NULL,
-  `hora` time NOT NULL,
-  `estado` enum('Confirmada','Cancelada') DEFAULT 'Confirmada'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `reservas`
---
-
-INSERT INTO `reservas` (`id_reserva`, `id_usuario`, `id_recurso`, `fecha`, `hora`, `estado`) VALUES
-(1, 1, 1, '2026-06-15', '18:00:00', 'Confirmada');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `usuarios`
---
-
-CREATE TABLE `usuarios` (
-  `id_usuario` int(11) NOT NULL,
-  `nombre` varchar(50) NOT NULL,
-  `apellidos` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `usuarios`
---
-
-INSERT INTO `usuarios` (`id_usuario`, `nombre`, `apellidos`, `email`) VALUES
-(1, 'Carlos', 'García Pérez', 'carlos.garcia@email.com'),
-(2, 'Laura', 'Martínez Gómez', 'laura.martinez@email.com'),
-(3, 'Alejandro', 'López Ruiz', 'alejandro.lopez@email.com');
-
---
--- Índices para tablas volcadas
---
-
---
--- Indices de la tabla `recursos`
---
-ALTER TABLE `recursos`
-  ADD PRIMARY KEY (`id_recurso`);
-
---
--- Indices de la tabla `reservas`
---
-ALTER TABLE `reservas`
-  ADD PRIMARY KEY (`id_reserva`),
-  ADD KEY `fk_usuario` (`id_usuario`),
-  ADD KEY `fk_recurso` (`id_recurso`);
-
---
--- Indices de la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`id_usuario`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
--- AUTO_INCREMENT de las tablas volcadas
---
-
---
--- AUTO_INCREMENT de la tabla `recursos`
---
-ALTER TABLE `recursos`
-  MODIFY `id_recurso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT de la tabla `reservas`
---
-ALTER TABLE `reservas`
-  MODIFY `id_reserva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- Restricciones para tablas volcadas
---
-
---
--- Filtros para la tabla `reservas`
---
-ALTER TABLE `reservas`
-  ADD CONSTRAINT `fk_recurso` FOREIGN KEY (`id_recurso`) REFERENCES `recursos` (`id_recurso`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-- NOTA IMPORTANTE SOBRE EL USUARIO ADMIN:
+-- No insertamos aquí el admin con una contraseña "a mano", porque una
+-- contraseña bien cifrada (bcrypt) no se puede escribir de memoria en SQL.
+-- Ejecuta una vez, desde el navegador, el script db/crear_admin.php:
+--   http://localhost/reservas/db/crear_admin.php
+-- Te devolverá el email y la contraseña temporal del admin.
+-- Después, BORRA o renombra ese archivo por seguridad.

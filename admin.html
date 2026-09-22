@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de administración · Reservas Deportivas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style/styles.css">
+<link rel="stylesheet" href="style/app-extra.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <span class="brand__mark">●</span>
+        <span class="brand__name">RESERVAS<span class="brand__name--accent">DEPORTIVAS</span></span>
+      </div>
+      <nav class="nav">
+        <a href="index.html" class="nav__link">Ver sitio</a>
+      </nav>
+      <div class="nav__actions">
+        <span class="nav__user">Admin: <strong id="nombreAdmin"></strong></span>
+        <button class="btn btn--ghost" id="btnLogout">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="admin-header">
+      <h1 class="section__title">Crear nuevo evento</h1>
+    </div>
+    <p>Publica una pista o evento para que los usuarios puedan reservar plazas.</p>
+
+    <form id="formEvento" class="form form--grid">
+      <label class="field">
+        <span>Nombre del evento</span>
+        <input type="text" name="nombre" required placeholder="Ej. Pista 3 - Tenis">
+      </label>
+      <label class="field">
+        <span>Deporte</span>
+        <input type="text" name="tipo" required placeholder="Ej. Tenis y Pádel">
+      </label>
+      <label class="field">
+        <span>Descripción</span>
+        <input type="text" name="descripcion" placeholder="Detalles del evento (opcional)">
+      </label>
+      <label class="field">
+        <span>Capacidad (plazas)</span>
+        <input type="number" name="capacidad" min="1" required>
+      </label>
+      <label class="field">
+        <span>Fecha</span>
+        <input type="date" name="fecha" required>
+      </label>
+      <label class="field">
+        <span>Hora</span>
+        <input type="time" name="hora" required>
+      </label>
+      <label class="field">
+        <span>Lugar</span>
+        <input type="text" name="lugar" placeholder="Ej. Polideportivo Norte">
+      </label>
+
+      <button type="submit" class="btn btn--primary">Crear evento</button>
+      <p class="form__error" id="eventoError"></p>
+    </form>
+  </section>
+
+  <section class="section">
+    <h2 class="section__title">Eventos existentes</h2>
+    <div id="listaEventos"></div>
+  </section>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

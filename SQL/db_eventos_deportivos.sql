@@ -18,8 +18,10 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `db_eventos_deportivos`
---
+/*comentado por ana he descomentado la base de datos */
+Base de datos: `db_eventos_deportivos`
+CREATE DATABASE IF NOT EXISTS db_eventos_deportivos;
+USE db_eventos_deportivos; 
 
 -- --------------------------------------------------------
 
@@ -30,7 +32,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `recursos` (
   `id_recurso` int(11) NOT NULL,
   `nombre` varchar(100) NOT NULL,
-  `descripción` text DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
   `capacidad` int(11) NOT NULL,
   `tipo` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -39,7 +41,7 @@ CREATE TABLE `recursos` (
 -- Volcado de datos para la tabla `recursos`
 --
 
-INSERT INTO `recursos` (`id_recurso`, `nombre`, `descripción`, `capacidad`, `tipo`) VALUES
+INSERT INTO `recursos` (`id_recurso`, `nombre`, `descripcion`, `capacidad`, `tipo`) VALUES
 (1, 'Pista de Pádel 1', 'Pista de cristal exterior con iluminación LED', 4, 'Pádel'),
 (2, 'Pista de Tenis Central', 'Pista de superficie rápida (hard court)', 2, 'Tenis'),
 (3, 'Pista de Fútbol Sala', 'Pista cubierta de parqué con porterías reglamentarias', 10, 'Fútbol Sala'),

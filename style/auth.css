@@ -15,34 +15,31 @@
 }
 
 body.auth-page {
-  margin: 0;
   min-height: 100vh;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--auth-bg);
-  font-family: 'Inter', sans-serif;
-  padding: 1.5rem;
-  box-sizing: border-box;
+
+  /* Fondo a pantalla completa, estilo Netflix */
+  background-image: url('../img/Fondo.jpg'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* efecto "parallax" */
 }
 
 .auth-card {
-  width: 100%;
+  /* la tarjeta flota sobre el fondo */
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(2px);
+  border-radius: 8px;
+  padding: 48px 40px;
   max-width: 420px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
-  padding: 2.5rem 2rem;
-  box-sizing: border-box;
-}
-
-.auth-card__image {
-  display: block;
   width: 100%;
-  max-height: 160px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
+  color: #fff;
+  box-shadow: 0 10px 40px rgba(0,0,0,.5);
+  box-sizing: border-box;
 }
 
 .auth-card__brand {
@@ -60,7 +57,7 @@ body.auth-page {
   font-family: 'Bebas Neue', sans-serif;
   letter-spacing: 1px;
   font-size: 1.4rem;
-  color: var(--auth-dark);
+  color: #fff; /* antes var(--auth-dark), ilegible sobre fondo oscuro */
 }
 
 .auth-card__brand .brand__name--accent {
@@ -71,7 +68,7 @@ body.auth-page {
   text-align: center;
   font-size: 1.6rem;
   margin: 0 0 1.5rem;
-  color: var(--auth-text);
+  color: #fff; /* antes var(--auth-text) */
 }
 
 .field {
@@ -84,17 +81,23 @@ body.auth-page {
   font-weight: 600;
   margin-bottom: 0.35rem;
   font-size: 0.9rem;
-  color: var(--auth-text);
+  color: #fff; /* antes var(--auth-text) */
 }
 
 .field input {
   width: 100%;
   padding: 0.65rem 0.85rem;
-  border: 1px solid #d8d3c6;
+  border: 1px solid #555;
   border-radius: 8px;
   font-size: 0.95rem;
   box-sizing: border-box;
   font-family: inherit;
+  background: #333;
+  color: #fff;
+}
+
+.field input::placeholder {
+  color: #999;
 }
 
 .field input:focus {
@@ -104,12 +107,12 @@ body.auth-page {
 }
 
 .field input:read-only {
-  background: #f5f1e6;
-  color: #6b6455;
+  background: #2a2a2a;
+  color: #999;
 }
 
 .auth-error {
-  color: var(--auth-error);
+  color: #ff6b5e;
   text-align: center;
   margin-top: 0.75rem;
   min-height: 1.2em;
@@ -117,7 +120,7 @@ body.auth-page {
 }
 
 .auth-success {
-  color: var(--auth-success);
+  color: #4fd685;
   text-align: center;
   margin-top: 0.75rem;
   font-size: 0.9rem;
@@ -127,7 +130,7 @@ body.auth-page {
   text-align: center;
   margin-top: 1.25rem;
   font-size: 0.9rem;
-  color: var(--auth-text);
+  color: #ccc; /* antes var(--auth-text) */
 }
 
 .auth-card__footer a {

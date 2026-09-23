@@ -9,13 +9,16 @@ const eventoError = document.getElementById('eventoError');
 const listaEventos = document.getElementById('listaEventos');
 const nombreAdmin = document.getElementById('nombreAdmin');
 
+//Comentario de Ana
+
 async function protegerPagina() {
   try {
     const resp = await fetch('db/sesion.php', { credentials: 'include' });
     const data = await resp.json();
 
     if (!data.ok || !data.usuario || data.usuario.rol !== 'admin') {
-      window.location.href = 'login.html';
+      window.location.href = 'login.html'; 
+
       return false;
     }
 

@@ -7,9 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style/styles.css">
-<link rel="stylesheet" href="style/app-extra.css">
+<link rel="stylesheet" href="style/appExtra.css">
+<link rel="stylesheet" href="style/popups.css">
+<style>
+  /* Oculta toda la página hasta que auth.js confirme que hay sesión.
+     Si no hay sesión, auth.js redirige a login.html sin llegar a mostrar esto. */
+  body.verificando-sesion { visibility: hidden; }
+</style>
 </head>
-<body>
+<body class="verificando-sesion">
 
   <header class="topbar">
     <div class="topbar__inner">
@@ -43,7 +49,7 @@
         <div class="stat"><span class="stat__num" id="statPlazas">0</span><span class="stat__label">plazas libres</span></div>
         <div class="stat"><span class="stat__num" id="statReservas">0</span><span class="stat__label">reservas hoy</span></div>
       </div>
-    
+
     </div>
   </section>
 
@@ -107,6 +113,13 @@
     </div>
   </div>
 
+  <!-- Popup animado: reserva confirmada, confirmar cancelación, errores.
+       Su contenido lo genera script.js -->
+  <div class="popup" id="popup" aria-hidden="true">
+    <div class="popup__box" id="popupBox" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <!-- Aviso rápido (toast) -->
   <div class="toast" id="toast"></div>
 
   <script src="js/auth.js"></script>

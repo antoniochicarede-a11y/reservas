@@ -1,11 +1,16 @@
 <?php
 /**
  * correo.php
- * Envío de correos (SMTP con PHPMailer) para reservas y cancelaciones.
+ * Envío de correos (SMTP con PHPMailer) y datos de pago.
+ *
+ * Correos que se envían (siempre al email del usuario que reservó):
+ *   - Al reservar:            "Reserva recibida, pendiente de pago"
+ *   - Al confirmar el admin:  "Reserva confirmada"
+ *   - Al cancelar:            "Reserva cancelada" (la cancele el usuario o el admin)
  *
  * Regla de oro: un fallo al enviar el correo NUNCA debe deshacer la reserva
- * ni la cancelación. Por eso todas las funciones devuelven true/false y
- * escriben el motivo del fallo en el log de errores de PHP (en XAMPP:
+ * ni la cancelación. Por eso las funciones devuelven true/false y escriben el
+ * motivo del fallo en el log de errores de PHP (en XAMPP:
  * C:\xampp\apache\logs\error.log), pero no lanzan excepciones.
  */
 
@@ -15,6 +20,29 @@ use PHPMailer\PHPMailer\Exception as PHPMailerException;
 /** Escapa texto para meterlo en el HTML del correo. */
 function esc_correo($texto): string {
     return htmlspecialchars((string)$texto, ENT_QUOTES, 'UTF-8');
+}
+
+/** Datos de pago (móvil, método) de db/config_pago.php. */
+function configPago(): array {
+    $porDefecto = ['telefono' => '', 'metodo' => 'Bizum o transferencia', 'titular' => ''];
+    $archivo = __DIR__ . '/config_pago.php';
+    if (!is_file($archivo)) {
+        return $porDefecto;
+    }
+    $cfg = require $archivo;
+    return is_array($cfg) ? array_merge($porDefecto, $cfg) : $porDefecto;
+}
+
+/** 15 -> "15,00 €" */
+function formatoEuro($importe): string {
+    return number_format((float)$importe, 2, ',', '.') . ' €';
+}
+
+/** "2026-10-14" -> "miércoles 14/10/2026" */
+function fechaLarga(string $iso): string {
+    $dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    $t = strtotime($iso . ' 12:00:00');
+    return $dias[(int)date('w', $t)] . ' ' . date('d/m/Y', $t);
 }
 
 /**
@@ -76,16 +104,37 @@ function enviarCorreo(string $paraEmail, string $paraNombre, string $asunto, str
     }
 }
 
-/** Datos que aparecen en la tabla del correo (etiqueta => valor). */
-function filasCorreo(array $r): array {
+/**
+ * Convierte una fila de reserva (con los datos de la pista) en los datos del correo.
+ * $fila: id_reserva, nombre, email, evento, tipo, lugar, fecha (AAAA-MM-DD),
+ *        hora_inicio, hora_fin, precio
+ */
+function datosCorreo(array $fila): array {
     return [
-        'Nº de reserva' => '#' . $r['id_reserva'],
-        'Evento'        => $r['evento'],
-        'Deporte'       => $r['tipo'],
-        'Fecha'         => $r['fecha'],
-        'Hora'          => $r['hora'],
-        'Lugar'         => !empty($r['lugar']) ? $r['lugar'] : '—',
-        'Plazas'        => $r['plazas'],
+        'id_reserva' => (int)$fila['id_reserva'],
+        'nombre'     => $fila['nombre'],
+        'email'      => $fila['email'],
+        'evento'     => $fila['evento'],
+        'tipo'       => $fila['tipo'],
+        'fecha'      => fechaLarga($fila['fecha']),
+        'hora'       => substr($fila['hora_inicio'], 0, 5) . ' – ' . substr($fila['hora_fin'], 0, 5),
+        'lugar'      => $fila['lugar'] ?? '',
+        'precio'     => formatoEuro($fila['precio']),
+    ];
+}
+
+/** Filas de la tabla del correo (etiqueta => valor). */
+function filasCorreo(array $d, string $estado): array {
+    return [
+        'Nº de reserva' => '#' . $d['id_reserva'],
+        'Pista'         => $d['evento'],
+        'Deporte'       => $d['tipo'],
+        'Fecha'         => $d['fecha'],
+        'Hora'          => $d['hora'],
+        'Lugar'         => $d['lugar'] !== '' ? $d['lugar'] : '—',
+        'Reserva'       => '1 pista',
+        'Importe'       => $d['precio'],
+        'Estado'        => $estado,
     ];
 }
 
@@ -108,7 +157,7 @@ function plantillaCorreo(string $titulo, string $intro, array $filas, string $pi
         . '<h2 style="margin:0 0 10px;color:#1e4d92;font-size:22px;">' . esc_correo($titulo) . '</h2>'
         . '<p style="margin:0 0 18px;font-size:15px;line-height:1.5;">' . esc_correo($intro) . '</p>'
         . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">' . $filasHtml . '</table>'
-        . '<p style="margin:22px 0 0;font-size:13px;color:#666666;line-height:1.5;">' . esc_correo($pie) . '</p>'
+        . '<p style="margin:22px 0 0;font-size:13px;color:#444444;line-height:1.5;">' . esc_correo($pie) . '</p>'
         . '</td></tr></table></body></html>';
 }
 
@@ -123,36 +172,61 @@ function textoCorreo(string $titulo, string $intro, array $filas, string $pie): 
     return implode("\n", $lineas);
 }
 
-/**
- * Correo de reserva confirmada.
- * $r: id_reserva, nombre, email, evento, tipo, fecha, hora, lugar, plazas
- */
-function enviarCorreoReserva(array $r): bool {
-    $titulo = '¡Reserva confirmada!';
-    $intro  = 'Hola ' . $r['nombre'] . ', tu reserva está confirmada. Estos son los detalles:';
-    $pie    = 'Puedes cancelar tu reserva gratis hasta 24 horas antes del evento desde la sección «Mis reservas» de la web.';
-    $filas  = filasCorreo($r);
+/** Correo al reservar: la reserva queda PENDIENTE hasta que se confirme el pago. */
+function enviarCorreoPendiente(array $fila): bool {
+    $d = datosCorreo($fila);
+    $pago = configPago();
+
+    $titulo = 'Reserva recibida: pendiente de pago';
+    $intro  = 'Hola ' . $d['nombre'] . ', hemos recibido tu reserva. Todavía no está confirmada: queda pendiente de tu pago.';
+    $pie    = 'Para confirmarla, haz un pago de ' . $d['precio'] . ' por ' . $pago['metodo']
+            . ($pago['telefono'] !== '' ? ' al móvil ' . $pago['telefono'] : '')
+            . ' indicando «Reserva #' . $d['id_reserva'] . '». Cuando el administrador compruebe el pago, te enviaremos otro correo '
+            . 'confirmando tu reserva. La pista queda reservada para ti mientras tanto.';
+    $filas  = filasCorreo($d, 'Pendiente de pago');
 
     return enviarCorreo(
-        $r['email'],
-        $r['nombre'],
-        'Reserva confirmada · ' . $r['evento'],
+        $d['email'],
+        $d['nombre'],
+        'Reserva recibida (pendiente de pago) · ' . $d['evento'],
         plantillaCorreo($titulo, $intro, $filas, $pie, '#e2a83a'),
         textoCorreo($titulo, $intro, $filas, $pie)
     );
 }
 
-/** Correo de reserva cancelada (mismos campos que enviarCorreoReserva). */
-function enviarCorreoCancelacion(array $r): bool {
-    $titulo = 'Reserva cancelada';
-    $intro  = 'Hola ' . $r['nombre'] . ', hemos cancelado tu reserva. Las plazas han quedado libres de nuevo.';
-    $pie    = 'Si ha sido un error, puedes volver a reservar desde la web mientras queden plazas.';
-    $filas  = filasCorreo($r);
+/** Correo cuando el administrador confirma el pago. */
+function enviarCorreoConfirmacion(array $fila): bool {
+    $d = datosCorreo($fila);
+
+    $titulo = '¡Reserva confirmada!';
+    $intro  = 'Hola ' . $d['nombre'] . ', hemos recibido tu pago y tu reserva está confirmada. Estos son los detalles:';
+    $pie    = 'Puedes cancelar tu reserva hasta 24 horas antes desde la sección «Mis reservas» de la web.';
+    $filas  = filasCorreo($d, 'Confirmada');
 
     return enviarCorreo(
-        $r['email'],
-        $r['nombre'],
-        'Reserva cancelada · ' . $r['evento'],
+        $d['email'],
+        $d['nombre'],
+        'Reserva confirmada · ' . $d['evento'],
+        plantillaCorreo($titulo, $intro, $filas, $pie, '#1e4d92'),
+        textoCorreo($titulo, $intro, $filas, $pie)
+    );
+}
+
+/** Correo de reserva cancelada. $porAdmin cambia el texto si la cancela el administrador. */
+function enviarCorreoCancelacion(array $fila, bool $porAdmin = false): bool {
+    $d = datosCorreo($fila);
+
+    $titulo = 'Reserva cancelada';
+    $intro  = $porAdmin
+        ? 'Hola ' . $d['nombre'] . ', el administrador ha cancelado tu reserva. La pista ha quedado libre de nuevo.'
+        : 'Hola ' . $d['nombre'] . ', hemos cancelado tu reserva. La pista ha quedado libre de nuevo.';
+    $pie    = 'Si ha sido un error, puedes volver a reservar desde la web mientras queden pistas libres.';
+    $filas  = filasCorreo($d, 'Cancelada');
+
+    return enviarCorreo(
+        $d['email'],
+        $d['nombre'],
+        'Reserva cancelada · ' . $d['evento'],
         plantillaCorreo($titulo, $intro, $filas, $pie, '#C1502E'),
         textoCorreo($titulo, $intro, $filas, $pie)
     );

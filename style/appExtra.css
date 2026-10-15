@@ -135,6 +135,36 @@
   font-size: 0.8rem;
   color: #6b6455;
 }
+.calendar-day {
+  padding: 8px 4px;
+  text-align: center;
+  background: #f9fafb;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+}
+.calendar-day:hover {
+  background: #e5e7eb;
+}
+.calendar-day.disabled {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.calendar-day.selected {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+  font-weight: bold;
+}
+.calendar-day.highlight-event {
+  border-color: #2563eb;
+  font-weight: bold;
+}
 
 @media (max-width: 640px) {
   .form--grid {

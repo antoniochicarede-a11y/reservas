@@ -1,0 +1,481 @@
+/* ============================================================
+   calendario.css
+   Calendario de reserva con horas (estilo restaurante / Amelia),
+   tarjetas de pista con imagen y precio, forma de pago, estados de
+   reserva y paginación.
+
+   NO cambia ningún color de styles.css: solo usa las variables de tu
+   paleta (--pitch, --amber, --amber-dark, --gold-light, --red, --chalk,
+   --charcoal, --line, --radius, --shadow). El rojo claro de las horas
+   completas es --red con transparencia.
+   Se carga DESPUÉS de styles.css, popups.css y accesibilidad-fix.css.
+   ============================================================ */
+
+/* Los elementos con atributo hidden siempre se ocultan, aunque tengan display propio */
+[hidden] { display: none !important; }
+
+/* Texto solo para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* ------------------------------------------------------------
+   Tarjetas de pista: imagen, número de pistas y precio
+   ------------------------------------------------------------ */
+.card--pista .card__img {
+  display: block;
+  width: 100%;
+  height: 165px;
+  object-fit: cover;
+  background: var(--line);
+}
+
+.card__precio {
+  margin: .4rem 0 0;
+  font-size: .85rem;
+  color: #444;
+}
+
+.card__precio strong {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 400;
+  letter-spacing: .02em;
+  color: var(--pitch);
+}
+
+
+/* ------------------------------------------------------------
+   Forma de pago (visible en la web)
+   ------------------------------------------------------------ */
+.pago-banner {
+  max-width: calc(1180px - 3rem);
+  margin: 2.2rem auto 0;
+  padding: 1rem 1.3rem;
+  border: 2px solid var(--gold-light);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, .08);
+  color: var(--chalk);
+  font-size: .98rem;
+}
+
+.pago-tel {
+  font-weight: 800;
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
+
+.pago-banner .pago-tel { color: var(--gold-light); }
+
+
+/* ------------------------------------------------------------
+   Modal de reserva
+   ------------------------------------------------------------ */
+.modal__box--reserva {
+  max-width: 820px;
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  outline: none;
+}
+
+.modal__box--reserva .form { margin-top: 1rem; }
+
+.reserva-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 1.5rem;
+}
+
+
+/* ------------------------------------------------------------
+   Calendario
+   ------------------------------------------------------------ */
+.cal__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  margin-bottom: .9rem;
+}
+
+.cal__selects {
+  display: flex;
+  flex: 1;
+  gap: .5rem;
+  min-width: 0;
+}
+
+.cal__select {
+  flex: 1;
+  min-width: 0;
+  padding: .5rem .6rem;
+  font: inherit;
+  font-size: .9rem;
+  color: var(--charcoal);
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+}
+
+.cal__flechas { display: flex; }
+
+.cal__flecha {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--pitch);
+  background: #fff;
+  border: 1.5px solid var(--line);
+  cursor: pointer;
+}
+
+.cal__flecha:first-child { border-radius: 8px 0 0 8px; }
+.cal__flecha:last-child  { border-radius: 0 8px 8px 0; border-left: 0; }
+.cal__flecha:disabled    { opacity: .4; cursor: not-allowed; }
+
+.cal__semana,
+.cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.cal__semana span {
+  padding: .25rem 0;
+  text-align: center;
+  font-size: .78rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.cal__grid { transition: opacity .2s ease; }
+.cal__grid.is-cargando { opacity: .45; }
+
+.cal__dia {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0;
+  font: inherit;
+  font-size: .92rem;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 8px;
+}
+
+/* Días del mes anterior/siguiente que rellenan la cuadrícula */
+.cal__dia.is-otro {
+  color: #767676;
+}
+
+/* Día cerrado, ya pasado o sin cargar: apagado y sin poder elegirse */
+.cal__dia.is-cerrado {
+  color: #6b6b6b;
+  background: rgba(22, 23, 26, .06);
+  cursor: not-allowed;
+}
+
+/* Día completo: rojo claro, no se puede elegir */
+.cal__dia.is-completo {
+  color: #7d2f19;
+  background: rgba(193, 80, 46, .16);
+  border-color: rgba(193, 80, 46, .35);
+  cursor: not-allowed;
+}
+
+/* Día con horas libres: borde ámbar, se puede elegir */
+.cal__dia.is-disponible {
+  color: var(--charcoal);
+  font-weight: 700;
+  background: #fff;
+  border-color: var(--amber);
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+
+.cal__dia.is-disponible:hover {
+  background: rgba(226, 168, 58, .25);
+  transform: translateY(-1px);
+}
+
+.cal__dia.is-seleccionado,
+.cal__dia.is-seleccionado:hover {
+  color: var(--chalk);
+  background: var(--pitch);
+  border-color: var(--pitch);
+}
+
+/* Punto que marca el día de hoy */
+.cal__dia.is-hoy::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber-dark);
+}
+
+.cal__dia.is-seleccionado.is-hoy::after { background: var(--gold-light); }
+
+.cal__leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem 1rem;
+  margin: .9rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: .78rem;
+  color: #444;
+}
+
+.cal__leyenda li { display: flex; align-items: center; gap: .4rem; }
+
+.leyenda__muestra {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 2px solid transparent;
+}
+
+.leyenda__muestra--libre    { background: #fff; border-color: var(--amber); }
+.leyenda__muestra--completo { background: rgba(193, 80, 46, .16); border-color: rgba(193, 80, 46, .35); }
+.leyenda__muestra--cerrado  { background: rgba(22, 23, 26, .08); }
+
+
+/* ------------------------------------------------------------
+   Horas del día elegido
+   ------------------------------------------------------------ */
+.slots { min-width: 0; }
+
+.slots__titulo {
+  margin: 0 0 .7rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--pitch);
+}
+
+.slots__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 8px;
+  max-height: 320px;
+  padding: 2px;
+  overflow-y: auto;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: .5rem .3rem;
+  font: inherit;
+  color: var(--charcoal);
+  background: #fff;
+  border: 2px solid var(--amber);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+
+.slot__hora { font-size: .95rem; font-weight: 700; }
+.slot__info { font-size: .72rem; }
+
+.slot.is-libre:hover {
+  background: rgba(226, 168, 58, .25);
+  transform: translateY(-1px);
+}
+
+.slot.is-seleccionado,
+.slot.is-seleccionado:hover {
+  color: var(--chalk);
+  background: var(--pitch);
+  border-color: var(--pitch);
+}
+
+/* Hora completa: rojo claro, no se puede elegir */
+.slot.is-completo {
+  color: #7d2f19;
+  background: rgba(193, 80, 46, .16);
+  border-color: rgba(193, 80, 46, .4);
+  cursor: not-allowed;
+}
+
+.slot.is-completo .slot__hora { text-decoration: line-through; }
+
+/* Hora que ya ha pasado hoy */
+.slot.is-pasado {
+  color: #6b6b6b;
+  background: rgba(22, 23, 26, .06);
+  border-color: rgba(22, 23, 26, .1);
+  cursor: not-allowed;
+}
+
+.slots__mensaje {
+  margin: .8rem 0 0;
+  font-size: .88rem;
+  color: #444;
+}
+
+.slots__mensaje:empty { display: none; }
+
+.slots__mensaje.is-aviso,
+.slots__mensaje.is-error {
+  padding: .6rem .8rem;
+  color: #7d2f19;
+  background: rgba(193, 80, 46, .12);
+  border-left: 4px solid var(--red);
+  border-radius: 6px;
+}
+
+
+/* ------------------------------------------------------------
+   Resumen y pago dentro del modal
+   ------------------------------------------------------------ */
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: .6rem 1rem;
+  padding: .85rem 1rem;
+  background: rgba(226, 168, 58, .14);
+  border: 2px solid var(--amber);
+  border-radius: 10px;
+}
+
+.resumen span {
+  display: block;
+  font-size: .72rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #444;
+}
+
+.resumen strong { font-size: .95rem; }
+
+.pago-nota {
+  margin: 0;
+  padding: .65rem .85rem;
+  font-size: .85rem;
+  color: var(--charcoal);
+  background: rgba(30, 77, 146, .08);
+  border-radius: 8px;
+}
+
+.pago-nota .pago-tel,
+.popup__aviso .pago-tel,
+.reserva-item__pago .pago-tel { color: var(--pitch); }
+
+
+/* ------------------------------------------------------------
+   Popup: bloque con las instrucciones de pago
+   ------------------------------------------------------------ */
+.popup__aviso {
+  margin: 0 0 1.2rem;
+  padding: .8rem 1rem;
+  text-align: left;
+  font-size: .9rem;
+  color: var(--charcoal);
+  background: rgba(226, 168, 58, .18);
+  border-left: 4px solid var(--amber);
+  border-radius: 8px;
+  animation: subir .5s .55s both;
+}
+
+
+/* ------------------------------------------------------------
+   Mis reservas: estados, pago pendiente y paginación
+   ------------------------------------------------------------ */
+.reserva-item__info { flex: 1; min-width: 0; }
+.reserva-item__info > span { display: block; }
+
+.reserva-item.is-pendiente  { border-left: 5px solid var(--amber); }
+.reserva-item.is-confirmada { border-left: 5px solid var(--pitch); }
+.reserva-item.is-cancelada  { border-left: 5px solid var(--red); opacity: 1; background: #f4f1ea; }
+
+.estado--pendiente {
+  color: var(--charcoal);
+  background: var(--gold-light);
+  border: 1px solid var(--amber-dark);
+}
+
+.estado--confirmada {
+  color: var(--chalk);
+  background: var(--pitch);
+}
+
+.reserva-item__pago {
+  margin: .55rem 0 0;
+  padding: .55rem .75rem;
+  font-size: .82rem;
+  color: var(--charcoal);
+  background: rgba(226, 168, 58, .18);
+  border-radius: 8px;
+}
+
+.paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+  margin-top: 1.3rem;
+}
+
+.pag__btn {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 .6rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--pitch);
+  background: #fff;
+  border: 2px solid var(--pitch);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pag__btn:hover:not(:disabled) { background: var(--gold-light); }
+
+.pag__btn.is-activa {
+  color: var(--chalk);
+  background: var(--pitch);
+}
+
+.pag__btn:disabled { opacity: .45; cursor: not-allowed; }
+.pag__puntos { padding: 0 .2rem; color: var(--charcoal); }
+.pag__info { margin-left: auto; font-size: .85rem; color: var(--charcoal); }
+
+
+/* ------------------------------------------------------------
+   Móvil
+   ------------------------------------------------------------ */
+@media (max-width: 720px) {
+  .reserva-layout { grid-template-columns: 1fr; gap: 1.2rem; }
+  .slots__grid { max-height: none; grid-template-columns: repeat(3, 1fr); }
+  .cal__dia { height: 42px; }
+  .pag__info { width: 100%; margin: .3rem 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cal__dia,
+  .slot,
+  .cal__grid {
+    transition: none;
+  }
+}

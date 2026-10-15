@@ -17,8 +17,8 @@ return [
     'host'             => 'smtp.gmail.com',
     'puerto'           => 587,
     'cifrado'          => 'tls',                       // 'tls' (587) o 'ssl' (465)
-    'usuario'          => '',       // cuenta que envía
-    'clave'            => '',
-    'remitente_email'  => '',       // normalmente el mismo
+    'usuario'          => 'admindor5@gmail.com',       // cuenta que envía
+    'clave'            => 'kxfnysiztpwzpbus',
+    'remitente_email'  => 'admindor5@gmail.com',       // normalmente el mismo
     'remitente_nombre' => 'Reservas Deportivas',
 ];

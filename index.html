@@ -3,13 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reservas · Eventos deportivos</title>
+<title>Reservas · Pistas deportivas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style/styles.css">
 <link rel="stylesheet" href="style/app-extra.css">
+<link rel="stylesheet" href="style/popups.css">
+<link rel="stylesheet" href="style/accesibilidad-fix.css">
+<link rel="stylesheet" href="style/calendario.css">
+<style>
+  /* Oculta toda la página hasta que auth.js confirme que hay sesión.
+     Si no hay sesión, auth.js redirige a login.html sin llegar a mostrar esto. */
+  body.verificando-sesion { visibility: hidden; }
+</style>
 </head>
-<body>
+<body class="verificando-sesion">
 
   <header class="topbar">
     <div class="topbar__inner">
@@ -17,8 +25,8 @@
         <span class="brand__mark">●</span>
         <span class="brand__name">RESERVAS<span class="brand__name--accent">DEPORTIVAS</span></span>
       </div>
-      <nav class="nav">
-        <a href="#eventos" class="nav__link">Eventos</a>
+      <nav class="nav" aria-label="Principal">
+        <a href="#eventos" class="nav__link">Pistas</a>
         <a href="#como-funciona" class="nav__link">Cómo funciona</a>
         <a href="#mis-reservas" class="nav__link">Mis reservas</a>
       </nav>
@@ -29,28 +37,29 @@
     </div>
   </header>
 
+  <main>
   <section class="hero">
     <div class="hero__inner">
-      <p class="hero__eyebrow">Temporada 2026 · Plazas limitadas</p>
+      <p class="hero__eyebrow">Temporada 2026 · Reserva por pista, día y hora</p>
       <h1 class="hero__title">Reserva tu pista.<br>Juega cuando quieras.</h1>
-      <p class="hero__subtitle">Encuentra pistas y eventos deportivos cerca de ti, comprueba las plazas libres en tiempo real y confirma tu reserva en dos clics.</p>
+      <p class="hero__subtitle">Encuentra pistas deportivas cerca de ti, mira en el calendario qué días y horas están libres y reserva tu pista en pocos clics.</p>
       <div class="hero__actions">
-        <a href="#eventos" class="btn btn--primary">Ver eventos disponibles</a>
+        <a href="#eventos" class="btn btn--primary">Ver pistas disponibles</a>
         <a href="#como-funciona" class="btn btn--outline">Cómo funciona</a>
       </div>
       <div class="hero__stats">
-        <div class="stat"><span class="stat__num" id="statEventos">0</span><span class="stat__label">eventos activos</span></div>
-        <div class="stat"><span class="stat__num" id="statPlazas">0</span><span class="stat__label">plazas libres</span></div>
+        <div class="stat"><span class="stat__num" id="statEventos">0</span><span class="stat__label">pistas disponibles</span></div>
+        <div class="stat"><span class="stat__num" id="statPlazas">0</span><span class="stat__label">horarios libres hoy</span></div>
         <div class="stat"><span class="stat__num" id="statReservas">0</span><span class="stat__label">reservas hoy</span></div>
       </div>
-    
+
     </div>
   </section>
 
   <section class="section" id="eventos">
     <div class="section__head">
-      <h2 class="section__title">Próximos eventos</h2>
-      <div class="filters" id="filtros"></div>
+      <h2 class="section__title">Nuestras pistas</h2>
+      <div class="filters" id="filtros" role="group" aria-label="Filtrar por deporte"></div>
     </div>
     <div class="board" id="board"><!-- tarjetas generadas por JS --></div>
   </section>
@@ -61,19 +70,20 @@
       <li class="steps__item">
         <span class="steps__num">01</span>
         <h3>Crea tu cuenta</h3>
-        <p>Regístrate con tu correo. Sin cuenta no se puede reservar, para que cada plaza quede siempre a nombre de alguien real.</p>
+        <p>Regístrate con tu correo. Sin cuenta no se puede reservar, para que cada pista quede siempre a nombre de alguien real.</p>
       </li>
       <li class="steps__item">
         <span class="steps__num">02</span>
-        <h3>Elige tu evento</h3>
-        <p>Filtra por deporte y revisa el marcador de plazas disponibles de cada pista.</p>
+        <h3>Elige pista, día y hora</h3>
+        <p>Abre el calendario de la pista que quieras: las horas libres se pueden elegir y las completas aparecen en rojo claro.</p>
       </li>
       <li class="steps__item">
         <span class="steps__num">03</span>
-        <h3>Reserva tu plaza</h3>
-        <p>Confirma cuántas plazas necesitas. Tu reserva queda bloqueada al instante y aparece en "Mis reservas".</p>
+        <h3>Reserva y paga</h3>
+        <p>Tu reserva queda pendiente hasta que hagas el pago y el administrador lo confirme. Te avisamos por correo.</p>
       </li>
     </ol>
+    <p class="pago-banner" id="pagoBanner" hidden></p>
   </section>
 
   <section class="section" id="mis-reservas">
@@ -81,35 +91,75 @@
     <div class="reservas-list" id="reservasList">
       <p class="empty">Inicia sesión para ver tus reservas.</p>
     </div>
+    <nav class="paginacion" id="reservasPaginacion" aria-label="Paginación de mis reservas" hidden></nav>
   </section>
+  </main>
 
   <footer class="footer">
-    <p>Proyecto de prácticas · Prototipo del Sprint 1 · Reservas eventos deportivos</p>
+    <p>Proyecto de prácticas · Reservas de pistas deportivas</p>
   </footer>
 
-  <!-- Modal de reserva -->
+  <!-- Modal de reserva: calendario + horas -->
   <div class="modal" id="modal" aria-hidden="true">
-    <div class="modal__box">
-      <button class="modal__close" id="modalClose" aria-label="Cerrar">×</button>
+    <div class="modal__box modal__box--reserva" role="dialog" aria-modal="true" aria-labelledby="modalTitulo" tabindex="-1">
+      <button type="button" class="modal__close" id="modalClose" aria-label="Cerrar">×</button>
       <p class="modal__eyebrow" id="modalDeporte">Deporte</p>
-      <h3 class="modal__title" id="modalTitulo">Nombre del evento</h3>
-      <p class="modal__meta" id="modalMeta">Fecha · Lugar</p>
+      <h3 class="modal__title" id="modalTitulo">Nombre de la pista</h3>
+      <p class="modal__meta" id="modalMeta">Lugar · Precio</p>
 
-      <form id="formReserva" class="form">
+      <div class="reserva-layout">
+        <section class="cal" aria-label="Calendario de reservas">
+          <div class="cal__cabecera">
+            <div class="cal__selects">
+              <label class="sr-only" for="calMes">Mes</label>
+              <select id="calMes" class="cal__select"></select>
+              <label class="sr-only" for="calAnio">Año</label>
+              <select id="calAnio" class="cal__select"></select>
+            </div>
+            <div class="cal__flechas">
+              <button type="button" id="calPrev" class="cal__flecha" aria-label="Mes anterior">‹</button>
+              <button type="button" id="calNext" class="cal__flecha" aria-label="Mes siguiente">›</button>
+            </div>
+          </div>
+          <div class="cal__semana" aria-hidden="true">
+            <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+          </div>
+          <div class="cal__grid" id="calGrid"></div>
+          <ul class="cal__leyenda">
+            <li><span class="leyenda__muestra leyenda__muestra--libre"></span>Con horas libres</li>
+            <li><span class="leyenda__muestra leyenda__muestra--completo"></span>Completo</li>
+            <li><span class="leyenda__muestra leyenda__muestra--cerrado"></span>No disponible</li>
+          </ul>
+        </section>
+
+        <section class="slots" aria-live="polite">
+          <h4 class="slots__titulo" id="slotsTitulo">Horarios disponibles</h4>
+          <div class="slots__grid" id="slotsGrid"></div>
+          <p class="slots__mensaje" id="slotsMensaje"></p>
+        </section>
+      </div>
+
+      <form id="formReserva" class="form" novalidate>
         <p class="reserva-como" id="reservaComo"><!-- "Reservando como: Nombre (email)" --></p>
-        <label class="field">
-          <span>Número de plazas</span>
-          <input type="number" name="plazas" min="1" max="4" value="1" required>
-        </label>
-        <p class="form__error" id="formError"></p>
-        <button type="submit" class="btn btn--primary btn--block">Confirmar reserva</button>
+        <div class="resumen" id="resumen" hidden></div>
+        <p class="pago-nota" id="pagoNota"></p>
+        <p class="form__error" id="formError" role="alert"></p>
+        <button type="submit" class="btn btn--primary btn--block" id="btnReservar" disabled>Reservar pista</button>
       </form>
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <!-- Popup animado: reserva recibida, confirmar cancelación, errores.
+       Su contenido lo genera ui.js -->
+  <div class="popup" id="popup" aria-hidden="true">
+    <div class="popup__box" id="popupBox" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <!-- Aviso rápido (toast) -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="js/auth.js"></script>
+  <script src="js/ui.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

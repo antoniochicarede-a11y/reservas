@@ -1,0 +1,420 @@
+/* ============================================================
+   popups.css
+   Popups animados (confirmaciones, avisos, errores), toast, modal
+   de reserva y tarjetas de "Mis reservas".
+
+   NO define ningún color nuevo: solo usa las variables de tu paleta
+   (--pitch, --amber, --amber-dark, --gold-light, --red, --chalk,
+   --charcoal, --line) que ya existen en styles.css.
+   Se carga DESPUÉS de styles.css para poder ajustar sus animaciones.
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   Modal de reserva: entra con efecto "muelle"
+   ------------------------------------------------------------ */
+.modal {
+  backdrop-filter: blur(3px);
+  transition: opacity .25s ease;
+}
+
+.modal__box {
+  opacity: 0;
+  transform: translateY(40px) scale(.9);
+  transition: transform .5s cubic-bezier(.34, 1.56, .64, 1), opacity .3s ease;
+}
+
+.modal.is-open .modal__box {
+  opacity: 1;
+  transform: none;
+}
+
+/* Sacudida cuando hay un error en el formulario */
+.modal__box.is-shake {
+  animation: sacudir .45s ease;
+}
+
+@keyframes sacudir {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-10px); }
+  40%      { transform: translateX(10px); }
+  60%      { transform: translateX(-6px); }
+  80%      { transform: translateX(6px); }
+}
+
+
+/* ------------------------------------------------------------
+   Popup principal (confirmar reserva, confirmar cancelación, errores)
+   ------------------------------------------------------------ */
+.popup {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(22, 23, 26, .65);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, visibility 0s linear .25s;
+}
+
+.popup.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .25s ease;
+}
+
+.popup__box {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 420px;
+  padding: 2.2rem 1.8rem 1.6rem;
+  text-align: center;
+  background: #fff;
+  border-radius: var(--radius);
+  border-top: 6px solid var(--pitch);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, .4);
+}
+
+.popup.is-open .popup__box {
+  animation: popup-in .6s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+@keyframes popup-in {
+  from { opacity: 0; transform: translateY(40px) scale(.8) rotate(-2deg); }
+  to   { opacity: 1; transform: none; }
+}
+
+.popup__box--exito { border-top-color: var(--pitch); }
+.popup__box--aviso { border-top-color: var(--amber); }
+.popup__box--error { border-top-color: var(--red); }
+
+
+/* Icono animado (el trazo se "dibuja" solo) */
+.popup__icono {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .14);
+  animation: icono-pop .6s .15s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+.popup__box--exito .popup__icono { color: var(--pitch); }
+.popup__box--aviso .popup__icono { color: var(--amber-dark); }
+.popup__box--error .popup__icono { color: var(--red); }
+
+/* Anillo que se expande, como una onda */
+.popup__icono::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 3px solid currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  animation: anillo 1.4s .6s ease-out 2;
+}
+
+@keyframes icono-pop {
+  from { transform: scale(0) rotate(-90deg); }
+  to   { transform: none; }
+}
+
+@keyframes anillo {
+  0%   { transform: scale(1);   opacity: .7; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+.icono-svg {
+  width: 52px;
+  height: 52px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icono-svg .circulo,
+.icono-svg .trazo {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+.icono-svg .circulo { animation: trazo .6s .2s ease-out forwards; }
+.icono-svg .trazo   { animation: trazo .5s .5s ease-out forwards; }
+
+@keyframes trazo {
+  to { stroke-dashoffset: 0; }
+}
+
+
+/* Textos que van entrando escalonados */
+.popup__titulo {
+  margin-bottom: .4rem;
+  font-size: 2rem;
+  line-height: 1.05;
+  color: var(--pitch);
+  animation: subir .5s .3s both;
+}
+
+.popup__box--error .popup__titulo { color: var(--red); }
+
+.popup__mensaje {
+  margin: 0 0 1rem;
+  font-size: .95rem;
+  color: #555;
+  animation: subir .5s .4s both;
+}
+
+@keyframes subir {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.popup__detalles {
+  margin: 0 0 1.3rem;
+  text-align: left;
+}
+
+.popup__detalles > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .55rem 0;
+  border-top: 1px solid var(--line);
+  animation: subir .45s both;
+  animation-delay: calc(.45s + var(--i, 0) * .07s);
+}
+
+.popup__detalles dt {
+  font-size: .82rem;
+  color: #666;
+}
+
+.popup__detalles dd {
+  margin: 0;
+  font-size: .9rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.popup__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .7rem;
+  animation: subir .5s .6s both;
+}
+
+.popup__btn {
+  flex: 1 1 140px;
+}
+
+.btn--peligro {
+  background: var(--red);
+  color: var(--chalk);
+}
+
+.btn--peligro:hover {
+  filter: brightness(.92);
+}
+
+
+/* Confeti (solo en el popup de reserva confirmada) */
+.confeti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confeti i {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  width: 9px;
+  height: 15px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: confeti 1.7s ease-out forwards;
+  animation-delay: var(--d, 0s);
+}
+
+.confeti i:nth-child(3n + 1) { background: var(--amber); }
+.confeti i:nth-child(3n + 2) { background: var(--pitch); }
+.confeti i:nth-child(3n)     { background: var(--gold-light); }
+
+@keyframes confeti {
+  0%   { opacity: 1; transform: translate(-50%, 0) rotate(0); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--x, 0px)), 280px) rotate(var(--r, 360deg)); }
+}
+
+
+/* ------------------------------------------------------------
+   Toast: aviso pequeño que "rebota" al entrar y tiene barra de tiempo
+   ------------------------------------------------------------ */
+.toast {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  overflow: hidden;
+  max-width: min(92vw, 480px);
+  padding: .95rem 1.5rem .95rem 1.1rem;
+  border: 2px solid var(--amber);
+  border-radius: 16px;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .3);
+  opacity: 0;
+  transition: transform .55s cubic-bezier(.34, 1.56, .64, 1), opacity .25s ease;
+}
+
+.toast.is-visible { opacity: 1; }
+
+.toast::before {
+  content: 'i';
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--amber);
+  color: var(--charcoal);
+  font-size: .9rem;
+  font-weight: 800;
+}
+
+.toast.is-exito::before { content: '✓'; }
+
+.toast.is-error {
+  background: var(--red);
+  border-color: var(--chalk);
+}
+
+.toast.is-error::before {
+  content: '✕';
+  background: var(--chalk);
+  color: var(--red);
+}
+
+/* Barra que se va vaciando mientras el aviso está visible */
+.toast::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--amber);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+.toast.is-error::after { background: var(--chalk); }
+
+.toast.is-visible::after {
+  animation: toast-barra 3.2s linear forwards;
+}
+
+@keyframes toast-barra {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+
+/* ------------------------------------------------------------
+   Mis reservas: tarjetas con estado y botón de cancelar
+   ------------------------------------------------------------ */
+.reserva-item__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+}
+
+.reserva-item__nota {
+  display: block;
+  margin-top: .3rem;
+  font-size: .75rem;
+  color: #666;
+}
+
+.estado {
+  display: inline-block;
+  margin-top: .35rem;
+  padding: .15rem .6rem;
+  border-radius: 999px;
+  font-size: .7rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.estado--confirmada { background: var(--amber); color: var(--charcoal); }
+.estado--cancelada  { background: var(--red);   color: var(--chalk); }
+
+.reserva-item.is-cancelada {
+  opacity: .6;
+}
+
+.reserva-item.is-cancelada strong {
+  text-decoration: line-through;
+}
+
+.btn--cancelar {
+  padding: .5rem 1.1rem;
+  font-size: .82rem;
+  background: transparent;
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.btn--cancelar:hover {
+  background: var(--red);
+  color: var(--chalk);
+}
+
+.btn--cancelar:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+/* La reserva recién hecha aparece "saltando" con un halo del color de la web */
+.reserva-item.is-new {
+  animation: reserva-nueva 1.8s ease backwards;
+}
+
+@keyframes reserva-nueva {
+  0%   { opacity: 0; transform: translateY(-18px) scale(.95); box-shadow: 0 0 0 0 var(--amber); }
+  35%  { opacity: 1; transform: none;                          box-shadow: 0 0 0 9px var(--amber); }
+  100% { opacity: 1; transform: none;                          box-shadow: 0 0 0 0 transparent; }
+}
+
+
+/* ------------------------------------------------------------
+   Accesibilidad: sin animaciones si el usuario las tiene desactivadas
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .popup,
+  .popup *,
+  .popup *::after,
+  .toast,
+  .toast::after,
+  .modal__box,
+  .reserva-item {
+    animation-duration: .01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+
+  .confeti { display: none; }
+}

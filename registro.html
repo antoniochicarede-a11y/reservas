@@ -11,6 +11,7 @@
 </head>
 <body class="auth-page">
 
+  <main class="auth-main">
   <div class="auth-card">
     <div class="auth-card__brand">
       <span class="brand__mark">●</span>
@@ -20,22 +21,40 @@
     <h1>Crear cuenta</h1>
 
     <form id="formRegistro" novalidate>
-      <label class="field">
-        <span>Nombre completo</span>
-        <input type="text" name="nombre" required placeholder="Ej. Laura Gómez">
-      </label>
-      <label class="field">
-        <span>Correo electrónico</span>
-        <input type="email" name="email" required placeholder="tucorreo@ejemplo.com" autocomplete="username">
-      </label>
-      <label class="field">
-        <span>Contraseña</span>
-        <input type="password" name="contrasena" required minlength="8" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
-      </label>
-      <label class="field">
-        <span>Repite la contraseña</span>
-        <input type="password" name="contrasena2" required minlength="8" placeholder="Repite la contraseña" autocomplete="new-password">
-      </label>
+      <div class="field">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" id="nombre" name="nombre" required placeholder="Ej. Laura Gómez" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" name="email" required placeholder="tucorreo@ejemplo.com" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="contrasena">Contraseña</label>
+        <div class="pw-wrap">
+          <input type="password" id="contrasena" name="contrasena" required minlength="8" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+          <button type="button" class="pw-toggle" aria-label="Mostrar contraseña" aria-pressed="false" aria-controls="contrasena">
+          <svg class="pw-icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/>
+            <circle cx="12" cy="12" r="3"/>
+            <line class="pw-tachado" x1="3" y1="3" x2="21" y2="21"/>
+          </svg>
+          </button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="contrasena2">Repite la contraseña</label>
+        <div class="pw-wrap">
+          <input type="password" id="contrasena2" name="contrasena2" required minlength="8" placeholder="Repite la contraseña" autocomplete="new-password">
+          <button type="button" class="pw-toggle" aria-label="Mostrar contraseña" aria-pressed="false" aria-controls="contrasena2">
+          <svg class="pw-icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/>
+            <circle cx="12" cy="12" r="3"/>
+            <line class="pw-tachado" x1="3" y1="3" x2="21" y2="21"/>
+          </svg>
+          </button>
+        </div>
+      </div>
 
       <button type="submit" class="btn btn--primary btn--block">Registrarse</button>
       <p class="auth-error" id="authError"></p>
@@ -44,8 +63,22 @@
 
     <p class="auth-card__footer">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
   </div>
+  </main>
 
   <script>
+    // Botón "ver contraseña": alterna entre ocultarla y mostrarla mientras se escribe
+    document.querySelectorAll('.pw-toggle').forEach((boton) => {
+      boton.addEventListener('click', () => {
+        const campo = document.getElementById(boton.getAttribute('aria-controls'));
+        const visible = campo.type === 'password';
+        campo.type = visible ? 'text' : 'password';
+        boton.setAttribute('aria-pressed', String(visible));
+        boton.setAttribute('aria-label', visible ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        boton.classList.toggle('is-visible', visible);
+        campo.focus();
+      });
+    });
+
     const formRegistro = document.getElementById('formRegistro');
     const authError = document.getElementById('authError');
     const authSuccess = document.getElementById('authSuccess');

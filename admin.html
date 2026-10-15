@@ -7,9 +7,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style/styles.css">
-<link rel="stylesheet" href="style/app-extra.css">
+<link rel="stylesheet" href="style/appExtra.css">
+<link rel="stylesheet" href="style/popups.css">
+<link rel="stylesheet" href="style/auth.css">
+<link rel="stylesheet" href="style/calendario.css">
+<link rel="stylesheet" href="style/admin.css">
+<style>
+  body.verificando-sesion { visibility: hidden; }
+</style>
 </head>
-<body>
+<body class="verificando-sesion">
 
   <header class="topbar">
     <div class="topbar__inner">
@@ -17,62 +24,142 @@
         <span class="brand__mark">●</span>
         <span class="brand__name">RESERVAS<span class="brand__name--accent">DEPORTIVAS</span></span>
       </div>
-      <nav class="nav">
+      <nav class="nav" aria-label="Principal">
         <a href="index.html" class="nav__link">Ver sitio</a>
       </nav>
       <div class="nav__actions">
         <span class="nav__user">Admin: <strong id="nombreAdmin"></strong></span>
-        <button class="btn btn--ghost" id="btnLogout">Salir</button>
+        <button type="button" class="btn btn--ghost" id="btnLogout">Salir</button>
       </div>
     </div>
   </header>
 
-  <section class="section">
-    <div class="admin-header">
-      <h1 class="section__title">Crear nuevo evento</h1>
+  <main class="section admin">
+    <h1 class="section__title">Panel de administración</h1>
+
+    <div class="admin-tabs" role="tablist" aria-label="Secciones del panel">
+      <button type="button" role="tab" class="admin-tab is-activa" id="tabReservas" aria-selected="true" aria-controls="panelReservas">
+        Reservas <span class="admin-tab__n" id="contPendientes" title="Reservas pendientes de confirmar">0</span>
+      </button>
+      <button type="button" role="tab" class="admin-tab" id="tabPistas" aria-selected="false" aria-controls="panelPistas" tabindex="-1">
+        Pistas
+      </button>
     </div>
-    <p>Publica una pista o evento para que los usuarios puedan reservar plazas.</p>
 
-    <form id="formEvento" class="form form--grid">
-      <label class="field">
-        <span>Nombre del evento</span>
-        <input type="text" name="nombre" required placeholder="Ej. Pista 3 - Tenis">
-      </label>
-      <label class="field">
-        <span>Deporte</span>
-        <input type="text" name="tipo" required placeholder="Ej. Tenis y Pádel">
-      </label>
-      <label class="field">
-        <span>Descripción</span>
-        <input type="text" name="descripcion" placeholder="Detalles del evento (opcional)">
-      </label>
-      <label class="field">
-        <span>Capacidad (plazas)</span>
-        <input type="number" name="capacidad" min="1" required>
-      </label>
-      <label class="field">
-        <span>Fecha</span>
-        <input type="date" name="fecha" required>
-      </label>
-      <label class="field">
-        <span>Hora</span>
-        <input type="time" name="hora" required>
-      </label>
-      <label class="field">
-        <span>Lugar</span>
-        <input type="text" name="lugar" placeholder="Ej. Polideportivo Norte">
-      </label>
+    <!-- ===== Reservas ===== -->
+    <div id="panelReservas" role="tabpanel" aria-labelledby="tabReservas">
+      <h2 class="admin-subtitulo">Reservas de los clientes</h2>
+      <p class="admin-ayuda">Una reserva nace <strong>pendiente</strong>. Cuando veas el pago en tu móvil, pulsa «Confirmar pago»: pasa a confirmada y el cliente recibe un correo.</p>
 
-      <button type="submit" class="btn btn--primary">Crear evento</button>
-      <p class="form__error" id="eventoError"></p>
-    </form>
-  </section>
+      <div class="admin-filtros" id="adminFiltros" role="group" aria-label="Filtrar reservas por estado"></div>
 
-  <section class="section">
-    <h2 class="section__title">Eventos existentes</h2>
-    <div id="listaEventos"></div>
-  </section>
+      <div class="tabla-wrap">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th scope="col">Nº</th>
+              <th scope="col">Cliente</th>
+              <th scope="col">Pista</th>
+              <th scope="col">Día y hora</th>
+              <th scope="col">Importe</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaReservas"></tbody>
+        </table>
+      </div>
+      <p class="empty" id="reservasVacio" hidden></p>
+      <nav class="paginacion" id="adminPaginacion" aria-label="Paginación de reservas" hidden></nav>
+    </div>
 
+    <!-- ===== Pistas ===== -->
+    <div id="panelPistas" role="tabpanel" aria-labelledby="tabPistas" hidden>
+      <h2 class="admin-subtitulo">Crear una pista nueva</h2>
+      <p class="admin-ayuda">Cada pista que crees tendrá su calendario: los clientes eligen día y hora libres y cada reserva ocupa <strong>una</strong> pista.</p>
+
+      <form id="formPista" class="form form--pistas" novalidate>
+        <div class="field">
+          <label for="pNombre">Nombre de la pista</label>
+          <input type="text" id="pNombre" name="nombre" required maxlength="120" placeholder="Ej. Pádel · Pista cubierta">
+        </div>
+        <div class="field">
+          <label for="pTipo">Deporte</label>
+          <input type="text" id="pTipo" name="tipo" required maxlength="60" list="listaDeportes" placeholder="Ej. Tenis y Pádel">
+          <datalist id="listaDeportes">
+            <option value="Fútbol 7 y Fútbol 11"></option>
+            <option value="Tenis y Pádel"></option>
+            <option value="Baloncesto"></option>
+          </datalist>
+        </div>
+        <div class="field span-2">
+          <label for="pDescripcion">Descripción</label>
+          <input type="text" id="pDescripcion" name="descripcion" maxlength="255" placeholder="Detalles de la pista (opcional)">
+        </div>
+        <div class="field">
+          <label for="pNumPistas">Número de pistas iguales</label>
+          <input type="number" id="pNumPistas" name="num_pistas" min="1" max="50" value="1" required>
+        </div>
+        <div class="field">
+          <label for="pPrecio">Precio por reserva (€)</label>
+          <input type="number" id="pPrecio" name="precio" min="0" max="9999" step="0.01" value="0" required>
+        </div>
+        <div class="field">
+          <label for="pDuracion">Duración de cada reserva</label>
+          <select id="pDuracion" name="duracion_min">
+            <option value="30">30 minutos</option>
+            <option value="45">45 minutos</option>
+            <option value="60" selected>1 hora</option>
+            <option value="90">1 hora y media</option>
+            <option value="120">2 horas</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pLugar">Lugar</label>
+          <input type="text" id="pLugar" name="lugar" maxlength="120" placeholder="Ej. Polideportivo Norte">
+        </div>
+        <div class="field">
+          <label for="pApertura">Abre a las</label>
+          <input type="time" id="pApertura" name="hora_apertura" value="09:00" required>
+        </div>
+        <div class="field">
+          <label for="pCierre">Cierra a las</label>
+          <input type="time" id="pCierre" name="hora_cierre" value="22:00" required>
+        </div>
+        <fieldset class="dias span-2">
+          <legend>Días en que abre</legend>
+          <div class="dias__lista">
+            <label class="dias__op"><input type="checkbox" name="dias" value="1" checked> Lun</label>
+            <label class="dias__op"><input type="checkbox" name="dias" value="2" checked> Mar</label>
+            <label class="dias__op"><input type="checkbox" name="dias" value="3" checked> Mié</label>
+            <label class="dias__op"><input type="checkbox" name="dias" value="4" checked> Jue</label>
+            <label class="dias__op"><input type="checkbox" name="dias" value="5" checked> Vie</label>
+            <label class="dias__op"><input type="checkbox" name="dias" value="6" checked> Sáb</label>
+            <label class="dias__op"><input type="checkbox" name="dias" value="7" checked> Dom</label>
+          </div>
+        </fieldset>
+        <div class="field span-2">
+          <label for="pImagen">Imagen de la pista</label>
+          <input type="text" id="pImagen" name="imagen_url" maxlength="500" placeholder="img/pista-futbol.svg  ·  o un enlace https://...">
+          <small class="field__ayuda">Ruta de una foto de la carpeta <code>img/</code> o un enlace que empiece por https://. Si lo dejas vacío se usa una imagen por defecto.</small>
+        </div>
+
+        <p class="form__error span-2" id="pistaError" role="alert"></p>
+        <button type="submit" class="btn btn--primary span-2" id="btnCrearPista">Crear pista</button>
+      </form>
+
+      <h2 class="admin-subtitulo">Pistas existentes</h2>
+      <div id="listaPistas"></div>
+    </div>
+  </main>
+
+  <!-- Popup animado (confirmaciones) y aviso rápido -->
+  <div class="popup" id="popup" aria-hidden="true">
+    <div class="popup__box" id="popupBox" role="dialog" aria-modal="true"></div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/ui.js"></script>
   <script src="js/admin.js"></script>
 </body>
 </html>
